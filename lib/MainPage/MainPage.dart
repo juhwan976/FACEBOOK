@@ -1,10 +1,13 @@
 // ignore_for_file: file_names
-import 'dart:developer';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:facebook/loading_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:facebook/WatchPage/WatchPage.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+
+import '../AlarmPage/AlarmPage.dart';
+import '../FriendPage/FriendPage.dart';
+import '../HomePage/HomePage.dart';
+import '../MenuPage/MenuPage.dart';
+import '../ProfilePage/ProfilePage.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -14,44 +17,71 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  List<Widget> pageList = List<Widget>.empty();
+  BehaviorSubject<int> indexBehaviorSubject = BehaviorSubject<int>();
+
+  @override
+  initState() {
+    super.initState();
+
+    pageList = [...pageList, HomePage(), FriendPage(), WatchPage(), ProfilePage(), AlarmPage(), MenuPage()];
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+
+    indexBehaviorSubject.close();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            MaterialButton(
-              child: const Text('로그아웃'),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+    indexBehaviorSubject.add(0);
 
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pushReplacement(
-                  PageRouteBuilder(
-                    // ignore: prefer_const_constructors
-                    pageBuilder: (context, _, __) => LoadingPage(),
-                    transitionDuration: const Duration(seconds: 0),
-                  ),
-                );
-              },
-            ),
-            MaterialButton(
-              child: const Text('정보 불러오기'),
-              onPressed: () async {
-                await FirebaseFirestore.instance
-                    .collection('user')
-                    .doc(FirebaseAuth.instance.currentUser!.uid.toString())
-                    .get()
-                    .then(
-                  (snapshot) {
-                    log(snapshot.data().toString());
-                  },
-                );
-              },
-            ),
-          ],
-        ),
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.shifting,
+        items: const [
+          BottomNavigationBarItem(
+            label: '홈',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+          ),
+          BottomNavigationBarItem(
+            label: '친구',
+            icon: Icon(Icons.people),
+            activeIcon: Icon(Icons.people_alt_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: 'Watch',
+            icon: Icon(Icons.live_tv),
+            activeIcon: Icon(Icons.live_tv_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '프로필',
+            icon: Icon(Icons.account_circle),
+            activeIcon: Icon(Icons.account_circle_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '알림',
+            icon: Icon(Icons.notifications),
+            activeIcon: Icon(Icons.notifications_outlined),
+          ),
+          BottomNavigationBarItem(
+            label: '메뉴',
+            icon: Icon(Icons.menu),
+            activeIcon: Icon(Icons.menu_outlined),
+          ),
+        ],
+        onTap: (index) {
+          indexBehaviorSubject.add(index);
+        },
+      ),
+      body: StreamBuilder(
+        stream: indexBehaviorSubject.stream,
+        builder: (context, snapshot) {
+          return pageList.elementAt(snapshot.data as int);
+        }
       ),
     );
   }
