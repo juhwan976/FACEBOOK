@@ -47,6 +47,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _inputFormOnChanged() {
+    if(_idController.text.isNotEmpty && _pwController.text.isNotEmpty) {
+      _loginButtonSubject.add(true);
+    }
+  }
+
   @override
   initState() {
     super.initState();
@@ -123,6 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: () {
                       _appBarHeightSubject.add(appHeight * 0.12);
                     },
+                    onChanged: _inputFormOnChanged,
                   ),
                   Container(
                     height: 1,
@@ -143,6 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                     onSubmitted: () {
                       _appBarHeightSubject.add(appHeight * 0.24);
                     },
+                    onChanged: _inputFormOnChanged,
                   ),
                 ],
               ),

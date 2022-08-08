@@ -18,6 +18,7 @@ class InputForm extends StatelessWidget {
     this.visibleBorder = true,
     this.onTap()?,
     this.onSubmitted()?,
+    this.onChanged()?,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -34,6 +35,7 @@ class InputForm extends StatelessWidget {
   final bool visibleBorder;
   final Function? onTap;
   final Function? onSubmitted;
+  final Function? onChanged;
 
   void revealOrHideButton() {
     if (controller.text.isEmpty) {
@@ -105,6 +107,7 @@ class InputForm extends StatelessWidget {
         },
         onChanged: (_) {
           revealOrHideButton();
+          onChanged?.call();
         },
       ),
     );
