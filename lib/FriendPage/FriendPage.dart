@@ -10,12 +10,39 @@ class FriendPage extends StatefulWidget {
 }
 
 class _FriendPageState extends State<FriendPage> {
+  CrossFadeState crossFadeState = CrossFadeState.showFirst;
+
   @override
   Widget build(BuildContext context) {
     // ignore: prefer_const_constructors
     return Scaffold(
-      body: const Center(
-        child: Text('친구 페이지'),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AnimatedCrossFade(
+              firstChild: Icon(Icons.home_outlined),
+              secondChild: Icon(
+                Icons.home,
+                color: Colors.blue,
+              ),
+              crossFadeState: crossFadeState,
+              duration: Duration(milliseconds: 100),
+            ),
+            MaterialButton(
+              child: Text('Toggle'),
+              onPressed: () {
+                if (crossFadeState == CrossFadeState.showFirst) {
+                  crossFadeState = CrossFadeState.showSecond;
+                } else {
+                  crossFadeState = CrossFadeState.showFirst;
+                }
+
+                setState(() {});
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

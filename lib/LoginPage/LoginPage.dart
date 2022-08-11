@@ -169,6 +169,7 @@ class _LoginPageState extends State<LoginPage> {
                   return MaterialButton(
                     onPressed: snapshot.data == true
                         ? () async {
+                            FocusScope.of(context).unfocus();
                             _indicatorSubject.add(true);
                             _textFocusNode.unfocus();
                             _appBarHeightSubject.add(appHeight * 0.24);
