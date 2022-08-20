@@ -74,7 +74,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-
     double appHeight =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
@@ -87,7 +86,7 @@ class _MainPageState extends State<MainPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(
               pageList.length,
-              (index) {
+                  (index) {
                 return BottomNavigationButton(
                   numOfIcon: pageList.length,
                   delaySubject: _delayBehaviorSubject,
