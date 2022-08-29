@@ -106,9 +106,17 @@ class _LoginPageState extends State<LoginPage> {
                 );
               },
             ),
-            Container(
-              height: appHeight * 0.055,
-            ),
+            StreamBuilder(
+                stream: _appBarHeightSubject.stream,
+                builder: (context, snapshot) {
+                  return AnimatedContainer(
+                    height: (snapshot.data == appHeight * 0.24)
+                        ? appHeight * 0.055
+                        : appHeight * 0.026,
+                    duration: _animationDuration,
+                    child: const SizedBox.shrink(),
+                  );
+                }),
             Container(
               width: appWidth * 0.9,
               height: appHeight * 0.0575 * 2,
@@ -272,7 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                   return AnimatedContainer(
                     height: (snapshot.data == appHeight * 0.24)
                         ? appHeight * 0.276
-                        : appHeight * 0.047,
+                        : appHeight * 0.076,
                     duration: _animationDuration,
                     child: const SizedBox.shrink(),
                   );
