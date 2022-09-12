@@ -5,9 +5,17 @@ class HiddenMenuButton extends StatefulWidget {
   const HiddenMenuButton({
     Key? key,
     required this.label,
+    required this.hiddenMenu,
+    required this.hiddenMenuHeight,
+    this.onShowingEnd,
+    this.onNShowingEnd,
   }) : super(key: key);
 
   final String label;
+  final Widget hiddenMenu;
+  final double hiddenMenuHeight;
+  final Function? onShowingEnd;
+  final Function? onNShowingEnd;
 
   @override
   State<HiddenMenuButton> createState() => _HiddenMenuButtonState();
@@ -21,7 +29,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
     // TODO: implement initState
     super.initState();
 
-    _turnsSubject.add(0);
+    _turnsSubject.add(1/2);
   }
 
   @override
@@ -62,7 +70,21 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
               children: <Widget>[
                 Row(
                   children: [
-                    Text(widget.label),
+                    Image.asset(
+                      'assets/menuPage/hidden_menu_icon_4.png',
+                      color: Color.fromRGBO(180, 200, 210, 1),
+                      height: appHeight * 0.04,
+                    ),
+                    SizedBox(
+                      width: appHeight * 0.02,
+                    ),
+                    Text(
+                      widget.label,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 StreamBuilder(
@@ -79,14 +101,31 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
               ],
             ),
             onPressed: () {
-              if (!isShowing) {
+              if (isShowing) {
+                if(widget.onNShowingEnd != null) {
+                  widget.onNShowingEnd?.call();
+                }
                 _turnsSubject.add(1 / 2);
               } else {
                 _turnsSubject.add(0);
+                if(widget.onShowingEnd != null) {
+                  widget.onShowingEnd?.call();
+                }
               }
+
               isShowing = !isShowing;
             },
           ),
+        ),
+        StreamBuilder(
+          stream: _turnsSubject.stream,
+          builder: (context, AsyncSnapshot<double> snapshot) {
+            return AnimatedContainer(
+              duration: Duration(milliseconds: 150),
+              height: ((snapshot.data ?? 0) == 0) ? widget.hiddenMenuHeight : 0,
+              child: widget.hiddenMenu,
+            );
+          }
         ),
       ],
     );

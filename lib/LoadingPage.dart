@@ -12,7 +12,9 @@ import 'LoginPage/LoginPage.dart';
 import 'MainPage/MainPage.dart';
 
 class LoadingPage extends StatefulWidget {
-  const LoadingPage({Key? key}) : super(key: key);
+  const LoadingPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<LoadingPage> createState() => _LoadingPageState();
@@ -36,11 +38,9 @@ class _LoadingPageState extends State<LoadingPage> {
               stream: FirebaseAuth.instance.authStateChanges(),
               builder: (context, snapshot) {
                 if (snapshot.data == null) {
-                  // ignore: prefer_const_constructors
-                  return LoginPage();
+                  return const LoginPage();
                 } else {
-                  // ignore: prefer_const_constructors
-                  return MainPage();
+                  return const MainPage();
                 }
               },
             );

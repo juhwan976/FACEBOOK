@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ShortCutButton extends StatelessWidget {
   const ShortCutButton({
@@ -23,10 +24,6 @@ class ShortCutButton extends StatelessWidget {
             left: appWidth * 0.0125,
             right: appWidth * 0.0125,
             bottom: appWidth * 0.0125 * 2),
-        padding: EdgeInsets.only(
-          top: appHeight * 0.013,
-          left: appWidth * 0.022,
-        ),
         height: appHeight * 0.09,
         width: appWidth * 0.45,
         decoration: BoxDecoration(
@@ -41,29 +38,38 @@ class ShortCutButton extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              height: appHeight * 0.04,
-              child: Image.asset(
-                image,
-              ),
+        child: GestureDetector(
+          onTap: () {},
+          child: Container(
+            padding: EdgeInsets.only(
+              top: appHeight * 0.013,
+              left: appWidth * 0.022,
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: appHeight * 0.001,
-                left: appWidth * 0.01,
-              ),
-              child: Text(
-                this.label,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(
+                  height: appHeight * 0.04,
+                  child: Image.asset(
+                    image,
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: appHeight * 0.001,
+                    left: appWidth * 0.01,
+                  ),
+                  child: Text(
+                    this.label,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

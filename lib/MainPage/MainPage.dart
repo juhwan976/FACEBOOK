@@ -14,7 +14,9 @@ import '../ProfilePage/ProfilePage.dart';
 import '../Widgets/widget_bottom_navigation_button.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -22,27 +24,29 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   List<Widget> pageList = List<Widget>.empty();
-  final List<IconData> inactiveIconList = [
-    Icons.home_outlined,
-    Icons.people_outline,
-    Icons.desktop_windows,
-    Icons.account_circle_outlined,
-    Icons.notifications_outlined,
-    Icons.menu
+  final List<String> activeImageList = [
+    'assets/bottomNavigationBar/home_active.png',
+    'assets/bottomNavigationBar/watch_active.png',
+    'assets/bottomNavigationBar/profile_active.png',
+    'assets/bottomNavigationBar/peed_temp_active.png',
+    'assets/bottomNavigationBar/alarm_active.png',
+    'assets/bottomNavigationBar/menu_active.png',
   ];
-  final List<IconData> activeIconList = [
-    Icons.home,
-    Icons.people,
-    Icons.desktop_windows,
-    Icons.account_circle,
-    Icons.notifications,
-    Icons.menu
+  final List<String> inactiveImageList = [
+    'assets/bottomNavigationBar/home_inactive.png',
+    'assets/bottomNavigationBar/watch_inactive.png',
+    'assets/bottomNavigationBar/profile_inactive.png',
+    'assets/bottomNavigationBar/peed_temp_inactive.png',
+    'assets/bottomNavigationBar/alarm_inactive.png',
+    'assets/bottomNavigationBar/menu_inactive.png',
   ];
-  final List<String> labelList = ['홈', '친구', 'Watch', '프로필', '알림', '메뉴'];
+  final List<String> labelList = ['홈', 'Watch', '프로필', '피드', '알림', '메뉴'];
   final BehaviorSubject<int> _indexBehaviorSubject = BehaviorSubject<int>();
   final BehaviorSubject<int> _delayBehaviorSubject = BehaviorSubject<int>();
   final BehaviorSubject<int> _targetIndexBehaviorSubject =
       BehaviorSubject<int>();
+
+  final PageController _pageController = PageController();
 
   @override
   initState() {
@@ -55,9 +59,9 @@ class _MainPageState extends State<MainPage> {
     pageList = [
       ...pageList,
       HomePage(),
-      FriendPage(),
       WatchPage(),
       ProfilePage(),
+      FriendPage(),
       AlarmPage(),
       MenuPage()
     ];
@@ -74,7 +78,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    double appHeight =
+    final double appHeight =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
     return Theme(
@@ -86,16 +90,31 @@ class _MainPageState extends State<MainPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(
               pageList.length,
-                  (index) {
+              (index) {
                 return BottomNavigationButton(
                   numOfIcon: pageList.length,
                   delaySubject: _delayBehaviorSubject,
                   currentIndexSubject: _indexBehaviorSubject,
                   thisIndex: index,
                   targetIndexSubject: _targetIndexBehaviorSubject,
-                  inactiveIconList: inactiveIconList,
-                  activeIconList: activeIconList,
+                  activeImageList: activeImageList,
+                  inactiveImageList: inactiveImageList,
                   labelList: labelList,
+                  onTap: () {
+                    /*
+                    _pageController.animateToPage(
+                      index,
+                      duration: Duration(milliseconds: 100),
+                      curve: Curves.easeInOutExpo,
+                    );
+
+                     */
+                    _pageController.animateToPage(
+                      _targetIndexBehaviorSubject.stream.value,
+                      duration: Duration(milliseconds: 100),
+                      curve: Curves.linear,
+                    );
+                  },
                 );
               },
             ),
@@ -109,10 +128,16 @@ class _MainPageState extends State<MainPage> {
                 child: CupertinoActivityIndicator(),
               );
             }
+            SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+            return PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              children: pageList,
+            );
+            /*
             return BottomBarPageTransition(
               builder: (context, index) {
-                SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
+                //SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
                 return pageList.elementAt(index);
               },
               currentIndex: snapshot.data as int,
@@ -120,6 +145,7 @@ class _MainPageState extends State<MainPage> {
               transitionType: TransitionType.slide,
               transitionDuration: const Duration(milliseconds: 100),
             );
+            */
           },
         ),
       ),

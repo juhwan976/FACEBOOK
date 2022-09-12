@@ -12,7 +12,9 @@ import '../NewAccountPage/NewAccountPage.dart';
 import '../Widgets/widget_input_form.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -48,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _inputFormOnChanged() {
-    if(_idController.text.isNotEmpty && _pwController.text.isNotEmpty) {
+    if (_idController.text.isNotEmpty && _pwController.text.isNotEmpty) {
       _loginButtonSubject.add(true);
     }
   }
@@ -74,8 +76,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+    final double appHeight = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     final double appWidth = MediaQuery.of(context).size.width;
 
     if (init) {
@@ -193,7 +194,8 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.of(context).pushReplacement(
                                 PageRouteBuilder(
                                   // ignore: prefer_const_constructors
-                                  pageBuilder: (context, _, __) => MainPage(),
+                                  pageBuilder: (context, _, __) => MainPage(
+                                  ),
                                   transitionDuration:
                                       const Duration(seconds: 0),
                                 ),

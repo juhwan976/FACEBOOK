@@ -10,9 +10,10 @@ class BottomNavigationButton extends StatefulWidget {
     required this.delaySubject,
     required this.thisIndex,
     required this.targetIndexSubject,
-    required this.inactiveIconList,
-    required this.activeIconList,
+    required this.inactiveImageList,
+    required this.activeImageList,
     required this.labelList,
+    required this.onTap,
   }) : super(key: key);
 
   final int numOfIcon;
@@ -21,9 +22,10 @@ class BottomNavigationButton extends StatefulWidget {
   final BehaviorSubject<int> delaySubject;
   final int thisIndex;
   final BehaviorSubject<int> targetIndexSubject;
-  final List<IconData> inactiveIconList;
-  final List<IconData> activeIconList;
+  final List<String> inactiveImageList;
+  final List<String> activeImageList;
   final List<String> labelList;
+  final Function onTap;
 
   @override
   State<BottomNavigationButton> createState() => _BottomNavigationButtonState();
@@ -31,6 +33,8 @@ class BottomNavigationButton extends StatefulWidget {
 
 class _BottomNavigationButtonState extends State<BottomNavigationButton> {
   final int _duration = 80;
+  final Color _activeColor = const Color.fromRGBO(18, 119, 238, 1);
+  final Color _inactiveColor = const Color.fromRGBO(100, 100, 100, 1);
 
   @override
   initState() {
@@ -55,6 +59,8 @@ class _BottomNavigationButtonState extends State<BottomNavigationButton> {
 
   @override
   build(BuildContext context) {
+    final double imageHeight = (MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top) * 0.04;
+
     return SizedBox(
       width: MediaQuery.of(context).size.width / widget.numOfIcon,
       child: MaterialButton(
@@ -127,20 +133,26 @@ class _BottomNavigationButtonState extends State<BottomNavigationButton> {
                             return const SizedBox.shrink();
                           }
 
-                          return AnimatedCrossFade(
-                            firstChild: Icon(
-                              widget.inactiveIconList
-                                  .elementAt(widget.thisIndex),
-                              color: Colors.grey,
+                          return SizedBox(
+                            height: imageHeight,
+                            child: Center(
+                              child: AnimatedCrossFade(
+                                firstChild: Image.asset(
+                                  widget.inactiveImageList.elementAt(widget.thisIndex),
+                                  height: (widget.thisIndex > 2) ? imageHeight * 0.8 : imageHeight,
+                                  color: _inactiveColor,
+                                ),
+                                secondChild: Image.asset(
+                                  widget.activeImageList.elementAt(widget.thisIndex),
+                                  height: (widget.thisIndex > 2) ? imageHeight * 0.8 : imageHeight,
+                                  color: _activeColor,
+                                ),
+                                crossFadeState: (snapshot.data == widget.thisIndex)
+                                    ? CrossFadeState.showSecond
+                                    : CrossFadeState.showFirst,
+                                duration: Duration(milliseconds: _duration),
+                              ),
                             ),
-                            secondChild: Icon(
-                              widget.activeIconList.elementAt(widget.thisIndex),
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            crossFadeState: (snapshot.data == widget.thisIndex)
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                            duration: Duration(milliseconds: _duration),
                           );
                         }),
                     const SizedBox(height: 7),
@@ -148,8 +160,8 @@ class _BottomNavigationButtonState extends State<BottomNavigationButton> {
                       widget.labelList.elementAt(widget.thisIndex),
                       style: TextStyle(
                         color: (widget.thisIndex == snapshot.data)
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey,
+                            ? _activeColor
+                            : _inactiveColor,
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
@@ -163,6 +175,7 @@ class _BottomNavigationButtonState extends State<BottomNavigationButton> {
         onPressed: () async {
           widget.delaySubject.add(_calDelay());
           widget.targetIndexSubject.add(widget.thisIndex);
+          widget.onTap.call();
 
           if (widget.thisIndex > widget.currentIndexSubject.stream.value) {
             for (int i = widget.currentIndexSubject.stream.value + 1;
