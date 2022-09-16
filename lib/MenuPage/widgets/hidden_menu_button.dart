@@ -29,7 +29,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
     // TODO: implement initState
     super.initState();
 
-    _turnsSubject.add(1/2);
+    _turnsSubject.add(0);
   }
 
   @override
@@ -44,6 +44,8 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
   Widget build(BuildContext context) {
     final double appHeight =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+
+    final double buttonHeight = appHeight * 0.065;
 
     bool isShowing = false;
 
@@ -65,50 +67,52 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
             padding: EdgeInsets.zero,
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/menuPage/hidden_menu_icon_4.png',
-                      color: Color.fromRGBO(180, 200, 210, 1),
-                      height: appHeight * 0.04,
-                    ),
-                    SizedBox(
-                      width: appHeight * 0.02,
-                    ),
-                    Text(
-                      widget.label,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+            child: StreamBuilder(
+                stream: _turnsSubject.stream,
+                builder: (context, AsyncSnapshot<double> snapshot) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/menuPage/hidden_menu_icon_4.png',
+                            color: Color.fromRGBO(180, 200, 210, 1),
+                            height: appHeight * 0.04,
+                          ),
+                          SizedBox(
+                            width: appHeight * 0.02,
+                          ),
+                          Text(
+                            widget.label,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: ((snapshot.data ?? 0) == 0)
+                                  ? FontWeight.w500
+                                  : FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                StreamBuilder(
-                    stream: _turnsSubject.stream,
-                    builder: (context, AsyncSnapshot<double> snapshot) {
-                      return AnimatedRotation(
+                      AnimatedRotation(
                         duration: Duration(milliseconds: 150),
-                        turns: snapshot.data ?? 0,
+                        turns: snapshot.data ?? 1/2,
                         child: Image.asset('assets/menuPage/arrow_down.png',
                             height: 20),
                         onEnd: () {},
-                      );
-                    }),
-              ],
-            ),
+                      ),
+                    ],
+                  );
+                }),
             onPressed: () {
               if (isShowing) {
-                if(widget.onNShowingEnd != null) {
+                if (widget.onNShowingEnd != null) {
                   widget.onNShowingEnd?.call();
                 }
-                _turnsSubject.add(1 / 2);
-              } else {
                 _turnsSubject.add(0);
-                if(widget.onShowingEnd != null) {
+              } else {
+                _turnsSubject.add(1/2);
+                if (widget.onShowingEnd != null) {
                   widget.onShowingEnd?.call();
                 }
               }
@@ -118,15 +122,15 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
           ),
         ),
         StreamBuilder(
-          stream: _turnsSubject.stream,
-          builder: (context, AsyncSnapshot<double> snapshot) {
-            return AnimatedContainer(
-              duration: Duration(milliseconds: 150),
-              height: ((snapshot.data ?? 0) == 0) ? widget.hiddenMenuHeight : 0,
-              child: widget.hiddenMenu,
-            );
-          }
-        ),
+            stream: _turnsSubject.stream,
+            builder: (context, AsyncSnapshot<double> snapshot) {
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 150),
+                height:
+                    ((snapshot.data ?? 1/2) == 1/2) ? widget.hiddenMenuHeight : 0,
+                child: widget.hiddenMenu,
+              );
+            }),
       ],
     );
   }

@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../LoadingPage.dart';
+import '../LoginPage/LoginPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             MaterialButton(
-              child: const Text('로그아웃'),
+              child: const Text('...'),
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
 
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pushReplacement(
                   PageRouteBuilder(
                     // ignore: prefer_const_constructors
-                    pageBuilder: (context, _, __) => LoadingPage(),
+                    pageBuilder: (context, _, __) => LoginPage(),
                     transitionDuration: const Duration(seconds: 0),
                   ),
                 );
