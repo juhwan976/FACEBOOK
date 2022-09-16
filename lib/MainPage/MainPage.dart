@@ -85,7 +85,7 @@ class _MainPageState extends State<MainPage> {
       data: ThemeData(),
       child: Scaffold(
         bottomNavigationBar: SizedBox(
-          height: appHeight / 9.721518,
+          height: appHeight * 0.103,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(

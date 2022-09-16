@@ -1,44 +1,95 @@
 class MenuData {
   //---------------------------------------------------------------------------------
-  final leftShortCutImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final leftShortCutList = [
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '친구',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '그룹',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '아바타',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '과거의 오늘',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '페이지',
+    },
   ];
-  final hiddenLeftShortCutImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final rightShortCutList = [
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '피드',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '라이브 방송',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : 'Watch 동영상',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '저장됨',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '릴스',
+    },
   ];
-  final rightShortCutImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final hiddenLeftShortCutList = [
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '이벤트',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '판타지 게임',
+    },
   ];
-  final hiddenRightShortCutImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final hiddenRightShortCutList = [
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : '쿠폰',
+    },
+    {
+      'image' : 'assets/menuPage/stories.png',
+      'label' : 'Stories',
+    },
   ];
-  final leftShortCutLabelList = ['친구', '그룹', '아바타', '과거의 오늘', '페이지'];
-  final hiddenLeftShortCutLabelList = ['이벤트', '판타지 게임'];
-  final rightShortCutLabelList = ['피드', '라이브 방송', 'Watch 동영상', '저장됨', '릴스'];
-  final hiddenRightShortCutLabelList = ['쿠폰', 'Stories'];
 
   //---------------------------------------------------------------------------------
-  final communityResourceLeftImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final communityResourceLeftList = [
+    {
+      'label' : '코로나19 정보 센터',
+      'image' : 'assets/menuPage/stories.png',
+    },
+    {
+      'label' : '재난 안전 확인',
+      'image' : 'assets/menuPage/stories.png',
+    },
+    {
+      'label' : '정서적 건강',
+      'image' : 'assets/menuPage/stories.png',
+    },
   ];
-  final communityResourceRightImageList = [
-    'assets/menuPage/stories.png',
-    'assets/menuPage/stories.png',
+  final communityResourceRightList = [
+    {
+      'label' : '기부 캠페인',
+      'image' : 'assets/menuPage/stories.png',
+    },
+    {
+      'label' : '헌혈',
+      'image' : 'assets/menuPage/stories.png',
+    },
   ];
-  final communityResourceLeftLabelList = ['코로나19 정보 센터', '재난 안전 확인', '정서적 건강'];
-  final communityResourceRightLabelList = ['기부 캠페인', '헌혈'];
 
   //---------------------------------------------------------------------------------
   final helpList = [

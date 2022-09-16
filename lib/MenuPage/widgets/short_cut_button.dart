@@ -7,8 +7,8 @@ class ShortCutButton extends StatelessWidget {
     required this.label,
   }) : super(key: key);
 
-  final String image;
-  final String label;
+  final String? image;
+  final String? label;
 
   final BorderRadius _borderRadius = BorderRadius.circular(10);
 
@@ -52,7 +52,7 @@ class ShortCutButton extends StatelessWidget {
                 SizedBox(
                   height: appHeight * 0.04,
                   child: Image.asset(
-                    image,
+                    image ?? '',
                   ),
                 ),
                 Padding(
@@ -61,7 +61,7 @@ class ShortCutButton extends StatelessWidget {
                     left: appWidth * 0.01,
                   ),
                   child: Text(
-                    label,
+                    label ?? 'null',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,

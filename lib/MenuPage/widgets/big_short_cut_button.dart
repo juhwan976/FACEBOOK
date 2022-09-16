@@ -22,7 +22,7 @@ class BigShortCutButton extends StatelessWidget {
       borderRadius: _borderRadius,
       child: Container(
         margin: EdgeInsets.only(
-          bottom: appWidth * 0.025,
+          bottom: appWidth * 0.02,
           right: appWidth * 0.0375,
           left: appWidth * 0.0375,
         ),
@@ -41,11 +41,23 @@ class BigShortCutButton extends StatelessWidget {
         ),
         child: Row(
           children: <Widget>[
-            SizedBox(
-              height: appHeight * 0.075,
-              child: Image.asset(image as String),
+            Container(
+              margin: EdgeInsets.only(
+                left: appWidth * 0.01,
+                right: appWidth * 0.015,
+              ),
+              child: Image.asset(
+                image as String,
+                height: appHeight * 0.04,
+                color: Colors.grey,
+              ),
             ),
-            Text(label as String),
+            Text(
+              label as String,
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
       ),

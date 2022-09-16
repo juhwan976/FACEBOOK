@@ -23,6 +23,7 @@ class HiddenMenuButton extends StatefulWidget {
 
 class _HiddenMenuButtonState extends State<HiddenMenuButton> {
   final BehaviorSubject<double> _turnsSubject = BehaviorSubject<double>();
+  final Duration _turningDuration = Duration(milliseconds: 150);
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                           Image.asset(
                             'assets/menuPage/hidden_menu_icon_4.png',
                             color: Color.fromRGBO(180, 200, 210, 1),
-                            height: appHeight * 0.04,
+                            height: appHeight * 0.045,
                           ),
                           SizedBox(
                             width: appHeight * 0.02,
@@ -95,10 +96,12 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                         ],
                       ),
                       AnimatedRotation(
-                        duration: Duration(milliseconds: 150),
-                        turns: snapshot.data ?? 1/2,
-                        child: Image.asset('assets/menuPage/arrow_down.png',
-                            height: 20),
+                        duration: _turningDuration,
+                        turns: snapshot.data ?? 1 / 2,
+                        child: Image.asset(
+                          'assets/menuPage/arrow_down.png',
+                          height: 20,
+                        ),
                         onEnd: () {},
                       ),
                     ],
@@ -111,7 +114,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                 }
                 _turnsSubject.add(0);
               } else {
-                _turnsSubject.add(1/2);
+                _turnsSubject.add(1 / 2);
                 if (widget.onShowingEnd != null) {
                   widget.onShowingEnd?.call();
                 }
@@ -125,9 +128,10 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
             stream: _turnsSubject.stream,
             builder: (context, AsyncSnapshot<double> snapshot) {
               return AnimatedContainer(
-                duration: Duration(milliseconds: 150),
-                height:
-                    ((snapshot.data ?? 1/2) == 1/2) ? widget.hiddenMenuHeight : 0,
+                duration: _turningDuration,
+                height: ((snapshot.data ?? 1 / 2) == 1 / 2)
+                    ? widget.hiddenMenuHeight
+                    : 0,
                 child: widget.hiddenMenu,
               );
             }),

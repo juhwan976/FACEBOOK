@@ -9,10 +9,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../LoginPage/LoginPage.dart';
+import '../Widgets/widget_custom_sliver_appbar.dart';
+import '../Widgets/widget_custom_sliver_appbar_button.dart';
+import '../Widgets/widget_custom_sliver_appbar_shadow.dart';
 import 'menuData.dart';
 import 'widgets/big_short_cut_button.dart';
 import 'widgets/hidden_menu_button.dart';
@@ -43,7 +45,7 @@ class _MenuPageState extends State<MenuPage>
   final Duration _seeMoreDuration = const Duration(milliseconds: 200);
   final Duration _opacityDuration = const Duration(milliseconds: 50);
   final Duration _scrollDuration = const Duration(milliseconds: 250);
-  final Duration _hiddenMenuDuration = const Duration(milliseconds: 150);
+  final Duration _showingHiddenMenuDuration = const Duration(milliseconds: 300);
 
   final MenuData menuData = MenuData();
 
@@ -54,12 +56,9 @@ class _MenuPageState extends State<MenuPage>
   initState() {
     super.initState();
 
-    _scrollController.addListener(
-      () {
-        _scrollSubject.add(_scrollController.offset);
-        log(_scrollController.offset.toString());
-      },
-    );
+    _scrollController.addListener(() {
+      _scrollSubject.add(_scrollController.offset);
+    });
     _shortCutSubject.add(false);
     _communityResourceSubject.add(false);
     _helpSubject.add(false);
@@ -68,7 +67,9 @@ class _MenuPageState extends State<MenuPage>
   @override
   dispose() {
     super.dispose();
-    _scrollController.removeListener(() {});
+    _scrollController.removeListener(() {
+      _scrollSubject.add(_scrollController.offset);
+    });
     _scrollController.dispose();
     _scrollSubject.close();
     _shortCutSubject.close();
@@ -78,29 +79,56 @@ class _MenuPageState extends State<MenuPage>
 
   @override
   Widget build(BuildContext context) {
+    // 768
     final double appHeight =
         MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+    // 375
     final double appWidth = MediaQuery.of(context).size.width;
 
     final double appBarHeight = const SliverAppBar().toolbarHeight;
+    final double navigationBarHeight = appHeight * 0.103;
     final double myProfileHeight = appHeight * 0.04;
     final double shortCutMenusHeight = appHeight *
         0.09 *
-        math.max(menuData.leftShortCutLabelList.length,
-            menuData.rightShortCutLabelList.length);
+        math.max(menuData.leftShortCutList.length,
+            menuData.rightShortCutList.length);
     final double hiddenMenuHeight = appHeight * 0.215;
     final double justButtonHeight = appHeight * 0.075;
     final double cRHeight = appHeight * 0.3225;
-    final double helpHeight = appHeight * 0.375 + appWidth * 0.189;
+    final double helpHeight = appHeight * 0.375 + appWidth * 0.18;
 
     super.build(context);
 
     double _calCRScrollOffset() {
-      return 426;
+      if (isShowingShortCut && isShowingHelp) {
+        return appHeight * 0.914;
+      }
+
+      if (isShowingShortCut) {
+        return appHeight * 0.77;
+      }
+
+      if (isShowingHelp) {
+        return appHeight * 0.68;
+      }
+
+      return appHeight * 0.555;
     }
 
     double _calHelpScrollOffset() {
-      return 426;
+      if (isShowingShortCut && isShowingCommunityResource) {
+        return appHeight * 1.232;
+      }
+
+      if (isShowingShortCut) {
+        return appHeight * 0.91;
+      }
+
+      if (isShowingCommunityResource) {
+        return appHeight * 1.017;
+      }
+
+      return appHeight * 0.7;
     }
 
     return Scaffold(
@@ -108,101 +136,26 @@ class _MenuPageState extends State<MenuPage>
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            StreamBuilder(
-                stream: _scrollSubject.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.data == null) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return Visibility(
-                    visible: ((snapshot.data as double) >= appBarHeight)
-                        ? true
-                        : false,
-                    child: Opacity(
-                      opacity: 0.5,
-                      child: Container(
-                        height: 1,
-                        color: const Color.fromRGBO(206, 206, 206, 1),
-                      ),
-                    ),
-                  );
-                }),
+            CustomSliverAppBarShadow(
+              scrollOffsetStream: _scrollSubject.stream,
+            ),
             SizedBox(
-              height: MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  (appHeight / 9.721518) -
-                  1,
+              height: appHeight - navigationBarHeight - 1,
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: <Widget>[
-                  Theme(
-                    data: ThemeData(
-                      appBarTheme: const AppBarTheme(
-                        systemOverlayStyle: SystemUiOverlayStyle.dark,
+                  CustomSliverAppBar(
+                    title: '메뉴',
+                    buttonList: [
+                      CustomSliverAppBarButton(
+                        iconData: Icons.settings,
+                        onPressed: () {},
                       ),
-                    ),
-                    child: SliverAppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      floating: false,
-                      leading: const SizedBox.shrink(),
-                      leadingWidth: 0,
-                      titleTextStyle: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      CustomSliverAppBarButton(
+                        iconData: Icons.search,
+                        onPressed: () {},
                       ),
-                      title: Row(
-                        children: <Widget>[
-                          const Text(
-                            '메뉴',
-                            style: TextStyle(
-                              fontSize: 30,
-                            ),
-                          ),
-                          const Flexible(
-                            fit: FlexFit.tight,
-                            child: SizedBox.shrink(),
-                          ),
-                          Container(
-                            width: appHeight * 0.045,
-                            height: appHeight * 0.045,
-                            decoration: const BoxDecoration(
-                              color: Color.fromRGBO(228, 230, 234, 1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.settings,
-                                  color: Colors.black),
-                              onPressed: () {},
-                            ),
-                          ),
-                          SizedBox(
-                            width: appWidth * 0.025,
-                          ),
-                          Container(
-                            width: appHeight * 0.045,
-                            height: appHeight * 0.045,
-                            decoration: const BoxDecoration(
-                              color: Color.fromRGBO(228, 230, 234, 1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: IconButton(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              padding: EdgeInsets.zero,
-                              icon:
-                                  const Icon(Icons.search, color: Colors.black),
-                              onPressed: () {},
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    ],
                   ),
                   SliverToBoxAdapter(
                     child: MaterialButton(
@@ -316,23 +269,23 @@ class _MenuPageState extends State<MenuPage>
                       children: <Widget>[
                         Column(
                           children: List.generate(
-                            MenuData().leftShortCutLabelList.length,
+                            menuData.leftShortCutList.length,
                             (index) => (ShortCutButton(
-                              image: menuData.leftShortCutImageList
-                                  .elementAt(index),
-                              label: menuData.leftShortCutLabelList
-                                  .elementAt(index),
+                              image: menuData.leftShortCutList
+                                  .elementAt(index)['image'],
+                              label: menuData.leftShortCutList
+                                  .elementAt(index)['label'],
                             )),
                           ),
                         ),
                         Column(
                           children: List.generate(
-                            menuData.rightShortCutLabelList.length,
+                            menuData.rightShortCutList.length,
                             (index) => (ShortCutButton(
-                              image: menuData.rightShortCutImageList
-                                  .elementAt(index),
-                              label: menuData.rightShortCutLabelList
-                                  .elementAt(index),
+                              image: menuData.rightShortCutList
+                                  .elementAt(index)['image'],
+                              label: menuData.rightShortCutList
+                                  .elementAt(index)['label'],
                             )),
                           ),
                         ),
@@ -360,29 +313,29 @@ class _MenuPageState extends State<MenuPage>
                                     children: <Widget>[
                                       Column(
                                         children: List.generate(
-                                          menuData.hiddenLeftShortCutLabelList
-                                              .length,
+                                          menuData
+                                              .hiddenLeftShortCutList.length,
                                           (index) => (ShortCutButton(
                                             image: menuData
-                                                .hiddenLeftShortCutImageList
-                                                .elementAt(index),
+                                                .hiddenLeftShortCutList
+                                                .elementAt(index)['image'],
                                             label: menuData
-                                                .hiddenLeftShortCutLabelList
-                                                .elementAt(index),
+                                                .hiddenLeftShortCutList
+                                                .elementAt(index)['label'],
                                           )),
                                         ),
                                       ),
                                       Column(
                                         children: List.generate(
-                                          menuData.hiddenRightShortCutLabelList
-                                              .length,
+                                          menuData
+                                              .hiddenRightShortCutList.length,
                                           (index) => (ShortCutButton(
                                             image: menuData
-                                                .hiddenRightShortCutImageList
-                                                .elementAt(index),
+                                                .hiddenRightShortCutList
+                                                .elementAt(index)['image'],
                                             label: menuData
-                                                .hiddenRightShortCutLabelList
-                                                .elementAt(index),
+                                                .hiddenRightShortCutList
+                                                .elementAt(index)['label'],
                                           )),
                                         ),
                                       ),
@@ -438,29 +391,29 @@ class _MenuPageState extends State<MenuPage>
                                 children: <Widget>[
                                   Column(
                                     children: List.generate(
-                                      (menuData.communityResourceLeftImageList
-                                          .length),
+                                      (menuData
+                                          .communityResourceLeftList.length),
                                       (index) => (ShortCutButton(
                                         image: menuData
-                                            .communityResourceLeftImageList
-                                            .elementAt(index),
+                                            .communityResourceLeftList
+                                            .elementAt(index)['image'],
                                         label: menuData
-                                            .communityResourceLeftLabelList
-                                            .elementAt(index),
+                                            .communityResourceLeftList
+                                            .elementAt(index)['label'],
                                       )),
                                     ),
                                   ),
                                   Column(
                                     children: List.generate(
-                                      (menuData.communityResourceRightImageList
-                                          .length),
+                                      (menuData
+                                          .communityResourceRightList.length),
                                       (index) => (ShortCutButton(
                                         image: menuData
-                                            .communityResourceRightImageList
-                                            .elementAt(index),
+                                            .communityResourceRightList
+                                            .elementAt(index)['image'],
                                         label: menuData
-                                            .communityResourceRightLabelList
-                                            .elementAt(index),
+                                            .communityResourceRightList
+                                            .elementAt(index)['label'],
                                       )),
                                     ),
                                   ),
@@ -471,7 +424,8 @@ class _MenuPageState extends State<MenuPage>
                       hiddenMenuHeight: cRHeight,
                       onShowingEnd: () async {
                         _communityResourceSubject.add(true);
-                        await Future.delayed(_hiddenMenuDuration).then(
+                        isShowingCommunityResource = true;
+                        await Future.delayed(_showingHiddenMenuDuration).then(
                           (_) => (_scrollController.animateTo(
                             _calCRScrollOffset(),
                             duration: _scrollDuration,
@@ -481,13 +435,7 @@ class _MenuPageState extends State<MenuPage>
                       },
                       onNShowingEnd: () {
                         _communityResourceSubject.add(false);
-                        /*
-                        _scrollController.animateTo(
-                          _calCRScrollOffset(),
-                          duration: _scrollDuration,
-                          curve: Curves.linear,
-                        );
-                         */
+                        isShowingCommunityResource = false;
                       },
                     ),
                   ),
@@ -504,14 +452,17 @@ class _MenuPageState extends State<MenuPage>
                                   : _seeMoreDuration,
                               child: Container(
                                 margin: EdgeInsets.only(
-                                  bottom: appWidth * 0.02,
+                                  top: appHeight * 0.0125,
+                                  //bottom: appHeight * 0.01,
                                 ),
                                 child: Column(
                                   children: List.generate(
                                     menuData.helpList.length,
-                                        (index) => BigShortCutButton(
-                                      label: menuData.helpList.elementAt(index)['label'],
-                                      image: menuData.helpList.elementAt(index)['image'],
+                                    (index) => BigShortCutButton(
+                                      label: menuData.helpList
+                                          .elementAt(index)['label'],
+                                      image: menuData.helpList
+                                          .elementAt(index)['image'],
                                     ),
                                   ),
                                 ),
@@ -521,8 +472,9 @@ class _MenuPageState extends State<MenuPage>
                       hiddenMenuHeight: helpHeight,
                       onShowingEnd: () async {
                         _helpSubject.add(true);
-                        await Future.delayed(_hiddenMenuDuration).then(
-                              (_) => (_scrollController.animateTo(
+                        isShowingHelp = true;
+                        await Future.delayed(_showingHiddenMenuDuration).then(
+                          (_) => (_scrollController.animateTo(
                             _calHelpScrollOffset(),
                             duration: _scrollDuration,
                             curve: Curves.linear,
@@ -531,13 +483,7 @@ class _MenuPageState extends State<MenuPage>
                       },
                       onNShowingEnd: () {
                         _helpSubject.add(false);
-                        /*
-                        _scrollController.animateTo(
-                          _calCRScrollOffset(),
-                          duration: _scrollDuration,
-                          curve: Curves.linear,
-                        );
-                         */
+                        isShowingHelp = false;
                       },
                     ),
                   ),
@@ -624,35 +570,5 @@ class _MenuPageState extends State<MenuPage>
         ),
       ),
     );
-  }
-}
-
-class AppBarHeaderDelegate extends SliverPersistentHeaderDelegate {
-  AppBarHeaderDelegate({required this.color});
-
-  final double _height = 1;
-  final Color color;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox(
-      //width: MediaQuery.of(context).size.width,
-      height: _height,
-      child: Container(
-        color: color,
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => _height;
-
-  @override
-  double get minExtent => _height;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 }
