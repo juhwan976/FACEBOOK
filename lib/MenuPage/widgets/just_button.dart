@@ -23,13 +23,14 @@ class JustButton extends StatelessWidget {
         right: appHeight * 0.02,
         bottom: appHeight * 0.02,
       ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: const Color.fromRGBO(227, 227, 234, 1),
-      ),
-      child: MaterialButton(
-        padding: EdgeInsets.zero,
-        splashColor: Colors.transparent,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          primary: const Color.fromRGBO(227, 227, 234, 1),
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
         onPressed: () {
           onPress.call();
         },
@@ -39,6 +40,7 @@ class JustButton extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
         ),

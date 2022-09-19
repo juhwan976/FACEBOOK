@@ -10,11 +10,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     // ignore: prefer_const_constructors
     return Scaffold(
-      body: const Center(
+      body: Center(
         child: Text('프로필 페이지'),
       ),
     );

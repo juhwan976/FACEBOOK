@@ -3,11 +3,12 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:facebook/Widgets/widget_input_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../Global_Widgets/widget_input_form.dart';
 
 class NewAccountPage extends StatefulWidget {
   const NewAccountPage({Key? key}) : super(key: key);

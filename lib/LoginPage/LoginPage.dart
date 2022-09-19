@@ -7,9 +7,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../Global_Widgets/widget_input_form.dart';
 import '../MainPage/MainPage.dart';
 import '../NewAccountPage/NewAccountPage.dart';
-import '../Widgets/widget_input_form.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({

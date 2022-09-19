@@ -8,10 +8,10 @@ import 'package:rxdart/rxdart.dart';
 
 import '../AlarmPage/AlarmPage.dart';
 import '../FriendPage/FriendPage.dart';
+import '../Global_Widgets/widget_bottom_navigation_button.dart';
 import '../HomePage/HomePage.dart';
 import '../MenuPage/MenuPage.dart';
 import '../ProfilePage/ProfilePage.dart';
-import '../Widgets/widget_bottom_navigation_button.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({
@@ -86,22 +86,28 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         bottomNavigationBar: SizedBox(
           height: appHeight * 0.103,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(
-              pageList.length,
-              (index) {
-                return BottomNavigationButton(
-                  numOfIcon: pageList.length,
-                  delaySubject: _delayBehaviorSubject,
-                  currentIndexSubject: _indexBehaviorSubject,
-                  thisIndex: index,
-                  targetIndexSubject: _targetIndexBehaviorSubject,
-                  activeImageList: activeImageList,
-                  inactiveImageList: inactiveImageList,
-                  labelList: labelList,
-                  onTap: () {
-                    /*
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: 1,
+                color: const Color.fromRGBO(206, 206, 206, 0.25),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(
+                  pageList.length,
+                      (index) {
+                    return BottomNavigationButton(
+                      numOfIcon: pageList.length,
+                      delaySubject: _delayBehaviorSubject,
+                      currentIndexSubject: _indexBehaviorSubject,
+                      thisIndex: index,
+                      targetIndexSubject: _targetIndexBehaviorSubject,
+                      activeImageList: activeImageList,
+                      inactiveImageList: inactiveImageList,
+                      labelList: labelList,
+                      onTap: () {
+                        /*
                     _pageController.animateToPage(
                       index,
                       duration: Duration(milliseconds: 100),
@@ -109,15 +115,17 @@ class _MainPageState extends State<MainPage> {
                     );
 
                      */
-                    _pageController.animateToPage(
-                      _targetIndexBehaviorSubject.stream.value,
-                      duration: Duration(milliseconds: 100),
-                      curve: Curves.linear,
+                        _pageController.animateToPage(
+                          _targetIndexBehaviorSubject.stream.value,
+                          duration: Duration(milliseconds: 100),
+                          curve: Curves.linear,
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
         ),
         body: StreamBuilder(

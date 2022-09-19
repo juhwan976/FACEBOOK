@@ -42,6 +42,8 @@ dependencies:
   cloud_firestore: ^3.4.0
   firebase_storage: ^10.3.3
 
+  scrolls_to_top: ^1.1.1
+
   bottom_bar_page_transition:
     path: packages/bottom_bar_page_transition-master/
 

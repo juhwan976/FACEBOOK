@@ -10,6 +10,10 @@ class CustomSliverAppBarShadow extends StatelessWidget {
 
   final double _appBarHeight = const SliverAppBar().toolbarHeight;
 
+  final double shadowHeight = 1.0;
+
+  get height => shadowHeight;
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -23,10 +27,10 @@ class CustomSliverAppBarShadow extends StatelessWidget {
           opacity: ((snapshot.data as double) >= _appBarHeight)
               ? 1
               : ((snapshot.data as double <= 0)
-              ? 0
-              : (snapshot.data as double) / _appBarHeight),
+                  ? 0
+                  : (snapshot.data as double) / _appBarHeight),
           child: Container(
-            height: 1,
+            height: shadowHeight,
             color: const Color.fromRGBO(206, 206, 206, 1),
           ),
         );

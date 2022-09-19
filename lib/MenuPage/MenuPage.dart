@@ -10,11 +10,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:scrolls_to_top/scrolls_to_top.dart';
 
 import '../LoginPage/LoginPage.dart';
-import '../Widgets/widget_custom_sliver_appbar.dart';
-import '../Widgets/widget_custom_sliver_appbar_button.dart';
-import '../Widgets/widget_custom_sliver_appbar_shadow.dart';
+import '../Global_Widgets/widget_custom_sliver_appbar.dart';
+import '../Global_Widgets/widget_custom_sliver_appbar_button.dart';
+import '../Global_Widgets/widget_custom_sliver_appbar_shadow.dart';
 import 'menuData.dart';
 import 'widgets/big_short_cut_button.dart';
 import 'widgets/hidden_menu_button.dart';
@@ -131,442 +132,447 @@ class _MenuPageState extends State<MenuPage>
       return appHeight * 0.7;
     }
 
-    return Scaffold(
-      backgroundColor: const Color.fromRGBO(240, 241, 245, 1),
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            CustomSliverAppBarShadow(
-              scrollOffsetStream: _scrollSubject.stream,
-            ),
-            SizedBox(
-              height: appHeight - navigationBarHeight - 1,
-              child: CustomScrollView(
-                controller: _scrollController,
-                slivers: <Widget>[
-                  CustomSliverAppBar(
-                    title: '메뉴',
-                    buttonList: [
-                      CustomSliverAppBarButton(
-                        iconData: Icons.settings,
-                        onPressed: () {},
-                      ),
-                      CustomSliverAppBarButton(
-                        iconData: Icons.search,
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                  SliverToBoxAdapter(
-                    child: MaterialButton(
-                      height: appHeight * 0.04,
-                      splashColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      highlightElevation: 0,
-                      elevation: 0,
-                      padding: EdgeInsets.only(
-                        left: appWidth * 0.04,
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            width: appWidth * 0.106,
-                            height: appWidth * 0.106,
-                            padding: EdgeInsets.zero,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color.fromRGBO(200, 200, 200, 1),
-                            ),
-                            child: FutureBuilder(
-                              future: FirebaseStorage.instance
-                                  .ref()
-                                  .child('users')
-                                  .child(
-                                      '${FirebaseAuth.instance.currentUser?.uid}')
-                                  .child('profileImage.png')
-                                  .getDownloadURL(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  log('error : ${snapshot.hasError}');
-                                }
+    return ScrollsToTop(
+      onScrollsToTop: (_) async {
+        log('scroll to top done!');
+      },
+      child: Scaffold(
+        backgroundColor: const Color.fromRGBO(240, 241, 245, 1),
+        body: SafeArea(
+          child: Column(
+            children: <Widget>[
+              CustomSliverAppBarShadow(
+                scrollOffsetStream: _scrollSubject.stream,
+              ),
+              SizedBox(
+                height: appHeight - navigationBarHeight - 1,
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: <Widget>[
+                    CustomSliverAppBar(
+                      title: '메뉴',
+                      buttonList: [
+                        CustomSliverAppBarButton(
+                          iconData: Icons.settings,
+                          onPressed: () {},
+                        ),
+                        CustomSliverAppBarButton(
+                          iconData: Icons.search,
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                    SliverToBoxAdapter(
+                      child: MaterialButton(
+                        height: appHeight * 0.04,
+                        splashColor: Colors.transparent,
+                        focusColor: Colors.transparent,
+                        highlightElevation: 0,
+                        elevation: 0,
+                        padding: EdgeInsets.only(
+                          left: appWidth * 0.04,
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              width: appWidth * 0.106,
+                              height: appWidth * 0.106,
+                              padding: EdgeInsets.zero,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color.fromRGBO(200, 200, 200, 1),
+                              ),
+                              child: FutureBuilder(
+                                future: FirebaseStorage.instance
+                                    .ref()
+                                    .child('users')
+                                    .child(
+                                    '${FirebaseAuth.instance.currentUser?.uid}')
+                                    .child('profileImage.png')
+                                    .getDownloadURL(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasError) {
+                                    log('error : ${snapshot.hasError}');
+                                  }
 
-                                if (snapshot.hasData) {
-                                  return Image.network('${snapshot.data}');
-                                } else {
-                                  return Padding(
-                                    padding: EdgeInsets.zero,
-                                    child: Image.asset(
-                                      'assets/menuPage/account_default.png',
-                                      height: appWidth * 0.10,
+                                  if (snapshot.hasData) {
+                                    return Image.network('${snapshot.data}');
+                                  } else {
+                                    return Padding(
+                                      padding: EdgeInsets.zero,
+                                      child: Image.asset(
+                                        'assets/menuPage/account_default.png',
+                                        height: appWidth * 0.10,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  height: appHeight * 0.04,
+                                  padding: EdgeInsets.only(
+                                    top: appHeight * 0.013,
+                                    left: appWidth * 0.021,
+                                  ),
+                                  child: FutureBuilder(
+                                    future: FirebaseFirestore.instance
+                                        .collection('user')
+                                        .doc(
+                                        '${FirebaseAuth.instance.currentUser?.uid}')
+                                        .get(),
+                                    builder: (context,
+                                        AsyncSnapshot<DocumentSnapshot>
+                                        snapshot) {
+                                      if (snapshot.hasError) {
+                                        return const CupertinoActivityIndicator();
+                                      }
+
+                                      if (snapshot.hasData) {
+                                        return Text(
+                                          snapshot.data!['name'].toString(),
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.lerp(
+                                                FontWeight.w400,
+                                                FontWeight.w500,
+                                                0.5),
+                                          ),
+                                        );
+                                      } else {
+                                        return const Text('null');
+                                      }
+                                    },
+                                  ),
+                                ),
+                                Container(
+                                    height: appHeight * 0.04,
+                                    padding: EdgeInsets.only(
+                                      top: appHeight * 0.005,
+                                      left: appWidth * 0.021,
                                     ),
-                                  );
-                                }
-                              },
+                                    child: const Text(
+                                      '내 프로필 보기',
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                        color: Colors.grey,
+                                      ),
+                                    )),
+                              ],
+                            ),
+                          ],
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Column(
+                            children: List.generate(
+                              menuData.leftShortCutList.length,
+                                  (index) => (ShortCutButton(
+                                image: menuData.leftShortCutList
+                                    .elementAt(index)['image'],
+                                label: menuData.leftShortCutList
+                                    .elementAt(index)['label'],
+                              )),
                             ),
                           ),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                height: appHeight * 0.04,
-                                padding: EdgeInsets.only(
-                                  top: appHeight * 0.013,
-                                  left: appWidth * 0.021,
-                                ),
-                                child: FutureBuilder(
-                                  future: FirebaseFirestore.instance
-                                      .collection('user')
-                                      .doc(
-                                          '${FirebaseAuth.instance.currentUser?.uid}')
-                                      .get(),
-                                  builder: (context,
-                                      AsyncSnapshot<DocumentSnapshot>
-                                          snapshot) {
-                                    if (snapshot.hasError) {
-                                      return const CupertinoActivityIndicator();
-                                    }
-
-                                    if (snapshot.hasData) {
-                                      return Text(
-                                        snapshot.data!['name'].toString(),
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.lerp(
-                                              FontWeight.w400,
-                                              FontWeight.w500,
-                                              0.5),
-                                        ),
-                                      );
-                                    } else {
-                                      return const Text('null');
-                                    }
-                                  },
-                                ),
-                              ),
-                              Container(
-                                  height: appHeight * 0.04,
-                                  padding: EdgeInsets.only(
-                                    top: appHeight * 0.005,
-                                    left: appWidth * 0.021,
-                                  ),
-                                  child: const Text(
-                                    '내 프로필 보기',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                            ],
+                            children: List.generate(
+                              menuData.rightShortCutList.length,
+                                  (index) => (ShortCutButton(
+                                image: menuData.rightShortCutList
+                                    .elementAt(index)['image'],
+                                label: menuData.rightShortCutList
+                                    .elementAt(index)['label'],
+                              )),
+                            ),
                           ),
                         ],
                       ),
-                      onPressed: () {},
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Column(
-                          children: List.generate(
-                            menuData.leftShortCutList.length,
-                            (index) => (ShortCutButton(
-                              image: menuData.leftShortCutList
-                                  .elementAt(index)['image'],
-                              label: menuData.leftShortCutList
-                                  .elementAt(index)['label'],
-                            )),
-                          ),
-                        ),
-                        Column(
-                          children: List.generate(
-                            menuData.rightShortCutList.length,
-                            (index) => (ShortCutButton(
-                              image: menuData.rightShortCutList
-                                  .elementAt(index)['image'],
-                              label: menuData.rightShortCutList
-                                  .elementAt(index)['label'],
-                            )),
-                          ),
-                        ),
-                      ],
+                    SliverToBoxAdapter(
+                      child: Stack(
+                        children: <Widget>[
+                          StreamBuilder(
+                              stream: _shortCutSubject.stream,
+                              builder: (context, AsyncSnapshot<bool> snapshot) {
+                                return AnimatedContainer(
+                                  height: snapshot.data ?? false
+                                      ? hiddenMenuHeight
+                                      : 0,
+                                  duration: _seeMoreDuration,
+                                  child: AnimatedOpacity(
+                                    opacity: snapshot.data ?? false ? 1 : 0,
+                                    duration: snapshot.data ?? false
+                                        ? _opacityDuration
+                                        : _seeMoreDuration,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Column(
+                                          children: List.generate(
+                                            menuData
+                                                .hiddenLeftShortCutList.length,
+                                                (index) => (ShortCutButton(
+                                              image: menuData
+                                                  .hiddenLeftShortCutList
+                                                  .elementAt(index)['image'],
+                                              label: menuData
+                                                  .hiddenLeftShortCutList
+                                                  .elementAt(index)['label'],
+                                            )),
+                                          ),
+                                        ),
+                                        Column(
+                                          children: List.generate(
+                                            menuData
+                                                .hiddenRightShortCutList.length,
+                                                (index) => (ShortCutButton(
+                                              image: menuData
+                                                  .hiddenRightShortCutList
+                                                  .elementAt(index)['image'],
+                                              label: menuData
+                                                  .hiddenRightShortCutList
+                                                  .elementAt(index)['label'],
+                                            )),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                          StreamBuilder(
+                              stream: _shortCutSubject.stream,
+                              builder: (context, AsyncSnapshot<bool> snapshot) {
+                                return Column(
+                                  children: <Widget>[
+                                    AnimatedContainer(
+                                      height: snapshot.data ?? false
+                                          ? hiddenMenuHeight
+                                          : 0,
+                                      duration: _seeMoreDuration,
+                                      child: const SizedBox.shrink(),
+                                    ),
+                                    JustButton(
+                                      label: snapshot.data ?? false
+                                          ? '간단히 보기'
+                                          : '더 보기',
+                                      onPress: () {
+                                        if (isShowingShortCut) {
+                                          _shortCutSubject.add(false);
+                                        } else {
+                                          _shortCutSubject.add(true);
+                                        }
+                                        isShowingShortCut = !isShowingShortCut;
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }),
+                        ],
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Stack(
-                      children: <Widget>[
-                        StreamBuilder(
-                            stream: _shortCutSubject.stream,
+                    SliverToBoxAdapter(
+                      child: HiddenMenuButton(
+                        label: '커뮤니티 리소스',
+                        hiddenMenu: StreamBuilder(
+                            stream: _communityResourceSubject.stream,
                             builder: (context, AsyncSnapshot<bool> snapshot) {
-                              return AnimatedContainer(
-                                height: snapshot.data ?? false
-                                    ? hiddenMenuHeight
-                                    : 0,
-                                duration: _seeMoreDuration,
-                                child: AnimatedOpacity(
-                                  opacity: snapshot.data ?? false ? 1 : 0,
-                                  duration: snapshot.data ?? false
-                                      ? _opacityDuration
-                                      : _seeMoreDuration,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Column(
-                                        children: List.generate(
-                                          menuData
-                                              .hiddenLeftShortCutList.length,
-                                          (index) => (ShortCutButton(
-                                            image: menuData
-                                                .hiddenLeftShortCutList
-                                                .elementAt(index)['image'],
-                                            label: menuData
-                                                .hiddenLeftShortCutList
-                                                .elementAt(index)['label'],
-                                          )),
-                                        ),
+                              return AnimatedOpacity(
+                                opacity: snapshot.data ?? false ? 1 : 0,
+                                duration: snapshot.data ?? false
+                                    ? _opacityDuration
+                                    : _seeMoreDuration,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Column(
+                                      children: List.generate(
+                                        (menuData
+                                            .communityResourceLeftList.length),
+                                            (index) => (ShortCutButton(
+                                          image: menuData
+                                              .communityResourceLeftList
+                                              .elementAt(index)['image'],
+                                          label: menuData
+                                              .communityResourceLeftList
+                                              .elementAt(index)['label'],
+                                        )),
                                       ),
-                                      Column(
-                                        children: List.generate(
-                                          menuData
-                                              .hiddenRightShortCutList.length,
-                                          (index) => (ShortCutButton(
-                                            image: menuData
-                                                .hiddenRightShortCutList
-                                                .elementAt(index)['image'],
-                                            label: menuData
-                                                .hiddenRightShortCutList
-                                                .elementAt(index)['label'],
-                                          )),
-                                        ),
+                                    ),
+                                    Column(
+                                      children: List.generate(
+                                        (menuData
+                                            .communityResourceRightList.length),
+                                            (index) => (ShortCutButton(
+                                          image: menuData
+                                              .communityResourceRightList
+                                              .elementAt(index)['image'],
+                                          label: menuData
+                                              .communityResourceRightList
+                                              .elementAt(index)['label'],
+                                        )),
                                       ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                        hiddenMenuHeight: cRHeight,
+                        onShowingEnd: () async {
+                          _communityResourceSubject.add(true);
+                          isShowingCommunityResource = true;
+                          await Future.delayed(_showingHiddenMenuDuration).then(
+                                (_) => (_scrollController.animateTo(
+                              _calCRScrollOffset(),
+                              duration: _scrollDuration,
+                              curve: Curves.linear,
+                            )),
+                          );
+                        },
+                        onNShowingEnd: () {
+                          _communityResourceSubject.add(false);
+                          isShowingCommunityResource = false;
+                        },
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: HiddenMenuButton(
+                        label: '도움말 및 지원',
+                        hiddenMenu: StreamBuilder(
+                            stream: _helpSubject.stream,
+                            builder: (context, AsyncSnapshot<bool> snapshot) {
+                              return AnimatedOpacity(
+                                opacity: snapshot.data ?? false ? 1 : 0,
+                                duration: snapshot.data ?? false
+                                    ? _opacityDuration
+                                    : _seeMoreDuration,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    top: appHeight * 0.0125,
+                                    //bottom: appHeight * 0.01,
+                                  ),
+                                  child: Column(
+                                    children: List.generate(
+                                      menuData.helpList.length,
+                                          (index) => BigShortCutButton(
+                                        label: menuData.helpList
+                                            .elementAt(index)['label'],
+                                        image: menuData.helpList
+                                            .elementAt(index)['image'],
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );
                             }),
-                        StreamBuilder(
-                            stream: _shortCutSubject.stream,
-                            builder: (context, AsyncSnapshot<bool> snapshot) {
-                              return Column(
-                                children: <Widget>[
-                                  AnimatedContainer(
-                                    height: snapshot.data ?? false
-                                        ? hiddenMenuHeight
-                                        : 0,
-                                    duration: _seeMoreDuration,
-                                    child: const SizedBox.shrink(),
-                                  ),
-                                  JustButton(
-                                    label: snapshot.data ?? false
-                                        ? '간단히 보기'
-                                        : '더 보기',
-                                    onPress: () {
-                                      if (isShowingShortCut) {
-                                        _shortCutSubject.add(false);
-                                      } else {
-                                        _shortCutSubject.add(true);
-                                      }
-                                      isShowingShortCut = !isShowingShortCut;
-                                    },
-                                  ),
-                                ],
-                              );
-                            }),
-                      ],
+                        hiddenMenuHeight: helpHeight,
+                        onShowingEnd: () async {
+                          _helpSubject.add(true);
+                          isShowingHelp = true;
+                          await Future.delayed(_showingHiddenMenuDuration).then(
+                                (_) => (_scrollController.animateTo(
+                              _calHelpScrollOffset(),
+                              duration: _scrollDuration,
+                              curve: Curves.linear,
+                            )),
+                          );
+                        },
+                        onNShowingEnd: () {
+                          _helpSubject.add(false);
+                          isShowingHelp = false;
+                        },
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: HiddenMenuButton(
-                      label: '커뮤니티 리소스',
-                      hiddenMenu: StreamBuilder(
-                          stream: _communityResourceSubject.stream,
-                          builder: (context, AsyncSnapshot<bool> snapshot) {
-                            return AnimatedOpacity(
-                              opacity: snapshot.data ?? false ? 1 : 0,
-                              duration: snapshot.data ?? false
-                                  ? _opacityDuration
-                                  : _seeMoreDuration,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Column(
-                                    children: List.generate(
-                                      (menuData
-                                          .communityResourceLeftList.length),
-                                      (index) => (ShortCutButton(
-                                        image: menuData
-                                            .communityResourceLeftList
-                                            .elementAt(index)['image'],
-                                        label: menuData
-                                            .communityResourceLeftList
-                                            .elementAt(index)['label'],
-                                      )),
-                                    ),
-                                  ),
-                                  Column(
-                                    children: List.generate(
-                                      (menuData
-                                          .communityResourceRightList.length),
-                                      (index) => (ShortCutButton(
-                                        image: menuData
-                                            .communityResourceRightList
-                                            .elementAt(index)['image'],
-                                        label: menuData
-                                            .communityResourceRightList
-                                            .elementAt(index)['label'],
-                                      )),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                      hiddenMenuHeight: cRHeight,
-                      onShowingEnd: () async {
-                        _communityResourceSubject.add(true);
-                        isShowingCommunityResource = true;
-                        await Future.delayed(_showingHiddenMenuDuration).then(
-                          (_) => (_scrollController.animateTo(
-                            _calCRScrollOffset(),
-                            duration: _scrollDuration,
-                            curve: Curves.linear,
-                          )),
-                        );
-                      },
-                      onNShowingEnd: () {
-                        _communityResourceSubject.add(false);
-                        isShowingCommunityResource = false;
-                      },
+                    const SliverToBoxAdapter(
+                      child: HiddenMenuButton(
+                        label: '설정 및 개인정보',
+                        hiddenMenu: SizedBox.shrink(),
+                        hiddenMenuHeight: 0,
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: HiddenMenuButton(
-                      label: '도움말 및 지원',
-                      hiddenMenu: StreamBuilder(
-                          stream: _helpSubject.stream,
-                          builder: (context, AsyncSnapshot<bool> snapshot) {
-                            return AnimatedOpacity(
-                              opacity: snapshot.data ?? false ? 1 : 0,
-                              duration: snapshot.data ?? false
-                                  ? _opacityDuration
-                                  : _seeMoreDuration,
-                              child: Container(
-                                margin: EdgeInsets.only(
-                                  top: appHeight * 0.0125,
-                                  //bottom: appHeight * 0.01,
-                                ),
-                                child: Column(
-                                  children: List.generate(
-                                    menuData.helpList.length,
-                                    (index) => BigShortCutButton(
-                                      label: menuData.helpList
-                                          .elementAt(index)['label'],
-                                      image: menuData.helpList
-                                          .elementAt(index)['image'],
-                                    ),
+                    const SliverToBoxAdapter(
+                      child: HiddenMenuButton(
+                        label: 'Meta의 다른 제품',
+                        hiddenMenu: SizedBox.shrink(),
+                        hiddenMenuHeight: 0,
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: JustButton(
+                        label: '로그아웃',
+                        onPress: () {
+                          showCupertinoModalPopup(
+                            context: context,
+                            builder: (context) => Theme(
+                              data: ThemeData.light(),
+                              child: CupertinoActionSheet(
+                                message: const Text(
+                                  '로그아웃하기 전에 로그인 정보를 저장하시겠어요?',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.normal,
                                   ),
                                 ),
-                              ),
-                            );
-                          }),
-                      hiddenMenuHeight: helpHeight,
-                      onShowingEnd: () async {
-                        _helpSubject.add(true);
-                        isShowingHelp = true;
-                        await Future.delayed(_showingHiddenMenuDuration).then(
-                          (_) => (_scrollController.animateTo(
-                            _calHelpScrollOffset(),
-                            duration: _scrollDuration,
-                            curve: Curves.linear,
-                          )),
-                        );
-                      },
-                      onNShowingEnd: () {
-                        _helpSubject.add(false);
-                        isShowingHelp = false;
-                      },
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: HiddenMenuButton(
-                      label: '설정 및 개인정보',
-                      hiddenMenu: SizedBox.shrink(),
-                      hiddenMenuHeight: 0,
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: HiddenMenuButton(
-                      label: 'Meta의 다른 제품',
-                      hiddenMenu: SizedBox.shrink(),
-                      hiddenMenuHeight: 0,
-                    ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: JustButton(
-                      label: '로그아웃',
-                      onPress: () {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (context) => Theme(
-                            data: ThemeData.light(),
-                            child: CupertinoActionSheet(
-                              message: const Text(
-                                '로그아웃하기 전에 로그인 정보를 저장하시겠어요?',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                              actions: [
-                                CupertinoActionSheetAction(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    '저장 후 로그아웃',
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                actions: [
+                                  CupertinoActionSheetAction(
+                                    onPressed: () {},
+                                    child: const Text(
+                                      '저장 후 로그아웃',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                CupertinoActionSheetAction(
-                                  onPressed: () async {
-                                    dispose();
-                                    await FirebaseAuth.instance.signOut();
+                                  CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      dispose();
+                                      await FirebaseAuth.instance.signOut();
 
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.of(context).pushReplacement(
-                                      PageRouteBuilder(
-                                        // ignore: prefer_const_constructors
-                                        pageBuilder: (context, _, __) =>
-                                            LoginPage(),
-                                        transitionDuration:
-                                            const Duration(seconds: 0),
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.of(context).pushReplacement(
+                                        PageRouteBuilder(
+                                          // ignore: prefer_const_constructors
+                                          pageBuilder: (context, _, __) =>
+                                          const LoginPage(),
+                                          transitionDuration:
+                                          const Duration(seconds: 0),
+                                        ),
+                                      );
+                                    },
+                                    child: const Text(
+                                      '저장하지 않고 로그아웃',
+                                      style: TextStyle(
+                                        color: Colors.red,
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    '저장하지 않고 로그아웃',
-                                    style: TextStyle(
-                                      color: Colors.red,
                                     ),
                                   ),
+                                ],
+                                cancelButton: CupertinoActionSheetAction(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('취소'),
                                 ),
-                              ],
-                              cancelButton: CupertinoActionSheetAction(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('취소'),
                               ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
