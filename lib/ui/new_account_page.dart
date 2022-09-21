@@ -8,7 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../Global_Widgets/widget_input_form.dart';
+import '../components/login_page/input_form.dart';
 
 class NewAccountPage extends StatefulWidget {
   const NewAccountPage({Key? key}) : super(key: key);
@@ -40,8 +40,6 @@ class _NewAccountPageState extends State<NewAccountPage> {
     _pwController.dispose();
     _nameController.dispose();
 
-    _idButtonSubject.close();
-    _pwButtonSubject.close();
     _nameButtonSubject.close();
 
     _textFocusNode.dispose();
@@ -151,9 +149,11 @@ class _NewAccountPageState extends State<NewAccountPage> {
               ),
               child: Column(
                 children: <Widget>[
+                  /*
                   InputForm(
                     controller: _idController,
-                    behaviorSubject: _idButtonSubject,
+                    //behaviorSubject: _idButtonSubject,
+                    inputType: InputType.id,
                     focusNode: _textFocusNode,
                     existNext: true,
                     height: appHeight * 0.0555,
@@ -166,7 +166,8 @@ class _NewAccountPageState extends State<NewAccountPage> {
                   ),
                   InputForm(
                     controller: _pwController,
-                    behaviorSubject: _pwButtonSubject,
+                    //behaviorSubject: _pwButtonSubject,
+                    inputType: InputType.pw,
                     focusNode: _textFocusNode,
                     existNext: true,
                     height: appHeight * 0.0555,
@@ -174,12 +175,14 @@ class _NewAccountPageState extends State<NewAccountPage> {
                     visibleBorder: false,
                     obscureText: true,
                   ),
+
+                   */
                 ],
               ),
             ),
             SizedBox(
               height: appHeight * 0.03,
-            ),
+            ),/*
             InputForm(
               controller: _nameController,
               behaviorSubject: _nameButtonSubject,
@@ -190,6 +193,7 @@ class _NewAccountPageState extends State<NewAccountPage> {
               existNext: false,
               hint: '이름',
             ),
+            */
           ],
         ),
       ),

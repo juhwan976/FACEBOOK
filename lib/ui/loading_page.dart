@@ -8,8 +8,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'LoginPage/LoginPage.dart';
-import 'MainPage/MainPage.dart';
+import '../models/global_model.dart';
+import 'login_page.dart';
+import 'main_page.dart';
 
 class LoadingPage extends StatefulWidget {
   const LoadingPage({
@@ -22,7 +23,14 @@ class LoadingPage extends StatefulWidget {
 
 class _LoadingPageState extends State<LoadingPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: FutureBuilder(
         future: Firebase.initializeApp(

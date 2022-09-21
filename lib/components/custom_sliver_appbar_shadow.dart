@@ -27,8 +27,8 @@ class CustomSliverAppBarShadow extends StatelessWidget {
           opacity: ((snapshot.data as double) >= _appBarHeight)
               ? 1
               : ((snapshot.data as double <= 0)
-                  ? 0
-                  : (snapshot.data as double) / _appBarHeight),
+              ? 0
+              : (snapshot.data as double) / _appBarHeight),
           child: Container(
             height: shadowHeight,
             color: const Color.fromRGBO(206, 206, 206, 1),

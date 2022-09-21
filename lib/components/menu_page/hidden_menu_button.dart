@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../models/global_model.dart';
+
 class HiddenMenuButton extends StatefulWidget {
   const HiddenMenuButton({
     Key? key,
@@ -25,6 +27,8 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
   final BehaviorSubject<double> _turnsSubject = BehaviorSubject<double>();
   final Duration _turningDuration = Duration(milliseconds: 150);
 
+  bool _isShowing = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -43,12 +47,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-
     final double buttonHeight = appHeight * 0.065;
-
-    bool isShowing = false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,6 +86,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                           Text(
                             widget.label,
                             style: TextStyle(
+                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: ((snapshot.data ?? 0) == 0)
                                   ? FontWeight.w500
@@ -108,7 +108,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                   );
                 }),
             onPressed: () {
-              if (isShowing) {
+              if (_isShowing) {
                 if (widget.onNShowingEnd != null) {
                   widget.onNShowingEnd?.call();
                 }
@@ -120,21 +120,22 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                 }
               }
 
-              isShowing = !isShowing;
+              _isShowing = !_isShowing;
             },
           ),
         ),
         StreamBuilder(
-            stream: _turnsSubject.stream,
-            builder: (context, AsyncSnapshot<double> snapshot) {
-              return AnimatedContainer(
-                duration: _turningDuration,
-                height: ((snapshot.data ?? 1 / 2) == 1 / 2)
-                    ? widget.hiddenMenuHeight
-                    : 0,
-                child: widget.hiddenMenu,
-              );
-            }),
+          stream: _turnsSubject.stream,
+          builder: (context, AsyncSnapshot<double> snapshot) {
+            return AnimatedContainer(
+              duration: _turningDuration,
+              height: ((snapshot.data ?? 1 / 2) == 1 / 2)
+                  ? widget.hiddenMenuHeight
+                  : 0,
+              child: widget.hiddenMenu,
+            );
+          },
+        ),
       ],
     );
   }

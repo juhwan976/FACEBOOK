@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../models/global_model.dart';
+
 class ShortCutButton extends StatelessWidget {
   ShortCutButton({
     Key? key,
@@ -14,9 +16,6 @@ class ShortCutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    final double appWidth = MediaQuery.of(context).size.width;
 
     return ClipRRect(
       borderRadius: _borderRadius,
@@ -63,6 +62,7 @@ class ShortCutButton extends StatelessWidget {
                   child: Text(
                     label ?? 'null',
                     style: TextStyle(
+                      color: Colors.black,
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
                     ),

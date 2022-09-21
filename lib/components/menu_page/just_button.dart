@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../models/global_model.dart';
+
 class JustButton extends StatelessWidget {
   const JustButton({
     Key? key,
@@ -12,8 +14,6 @@ class JustButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
     return Container(
       height: appHeight * 0.045,

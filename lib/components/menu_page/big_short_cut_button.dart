@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../models/global_model.dart';
+
 class BigShortCutButton extends StatelessWidget {
   BigShortCutButton({
     Key? key,
@@ -14,9 +16,6 @@ class BigShortCutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    double appWidth = MediaQuery.of(context).size.width;
 
     return ClipRRect(
       borderRadius: _borderRadius,
@@ -55,6 +54,7 @@ class BigShortCutButton extends StatelessWidget {
             Text(
               label as String,
               style: TextStyle(
+                color: Colors.black,
                 fontSize: 18,
               ),
             ),

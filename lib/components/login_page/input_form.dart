@@ -1,11 +1,14 @@
+import 'dart:developer';
+
+import 'package:facebook/bloc/login_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
 class InputForm extends StatelessWidget {
   const InputForm({
     Key? key,
     required this.controller,
-    required this.behaviorSubject,
+    required this.inputType,
+    required this.buttonStream,
     required this.focusNode,
     required this.hint,
     this.borderColor = Colors.white,
@@ -16,13 +19,15 @@ class InputForm extends StatelessWidget {
     this.height = 0.0,
     this.contentPadding = const EdgeInsets.only(left: 12.5, top: 12.5),
     this.visibleBorder = true,
+    this.onButtonPressed()?,
     this.onTap()?,
     this.onSubmitted()?,
     this.onChanged()?,
   }) : super(key: key);
 
   final TextEditingController controller;
-  final BehaviorSubject behaviorSubject;
+  final InputType inputType;
+  final Stream<bool> buttonStream;
   final FocusNode focusNode;
   final String hint;
   final Color borderColor;
@@ -33,17 +38,10 @@ class InputForm extends StatelessWidget {
   final double height;
   final EdgeInsets contentPadding;
   final bool visibleBorder;
+  final Function? onButtonPressed;
   final Function? onTap;
   final Function? onSubmitted;
   final Function? onChanged;
-
-  void revealOrHideButton() {
-    if (controller.text.isEmpty) {
-      behaviorSubject.add(false);
-    } else {
-      behaviorSubject.add(true);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +75,7 @@ class InputForm extends StatelessWidget {
             color: fontColor,
           ),
           suffixIcon: StreamBuilder(
-            stream: behaviorSubject.stream,
+            stream: buttonStream,
             builder: (context, snapshot) {
               if (snapshot.data == true) {
                 return IconButton(
@@ -85,7 +83,8 @@ class InputForm extends StatelessWidget {
                   color: borderColor,
                   onPressed: () {
                     controller.clear();
-                    behaviorSubject.add(false);
+                    //_hideButton();
+                    onButtonPressed?.call();
                   },
                 );
               } else {
@@ -98,18 +97,20 @@ class InputForm extends StatelessWidget {
           color: fontColor,
         ),
         onTap: () {
-          revealOrHideButton();
+          //_revealOrHideButton();
           onTap?.call();
         },
         onFieldSubmitted: (_) {
-          behaviorSubject.add(false);
+          //_hideButton();
           onSubmitted?.call();
         },
         onChanged: (_) {
-          revealOrHideButton();
+          //_revealOrHideButton();
           onChanged?.call();
         },
       ),
     );
   }
 }
+
+enum InputType { id, pw }

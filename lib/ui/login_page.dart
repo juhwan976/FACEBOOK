@@ -5,11 +5,10 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
-import '../Global_Widgets/widget_input_form.dart';
-import '../MainPage/MainPage.dart';
-import '../NewAccountPage/NewAccountPage.dart';
+import '../bloc/login_bloc.dart';
+import '../components/login_page/input_form.dart';
+import '../models/global_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -21,43 +20,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool visibleIdButton = false;
-  bool visiblePwButton = false;
-  bool init = true;
+  bool init = false;
 
-  final Color _borderColor = Colors.white;
+  final Color borderColor = Colors.white;
 
-  final Duration _animationDuration = const Duration(milliseconds: 250);
+  final Duration animationDuration = const Duration(milliseconds: 250);
 
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
 
-  final BehaviorSubject<double> _appBarHeightSubject =
-      BehaviorSubject<double>();
-  final BehaviorSubject<bool> _idButtonSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _pwButtonSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _indicatorSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _loginButtonSubject = BehaviorSubject<bool>();
-
   final FocusNode _textFocusNode = FocusNode();
 
-  void _activateLoginButton() {
-    if (_idController.text.isNotEmpty && _pwController.text.isNotEmpty) {
-      _loginButtonSubject.add(true);
-    } else {
-      _loginButtonSubject.add(false);
-    }
-  }
-
-  void _inputFormOnChanged() {
-    if (_idController.text.isNotEmpty && _pwController.text.isNotEmpty) {
-      _loginButtonSubject.add(true);
-    }
-  }
+  final loginBloc = LoginBloc();
 
   @override
   initState() {
     super.initState();
+
+    _idController.addListener(() {
+      loginBloc.updateId(_idController.text);
+    });
+    _pwController.addListener(() {
+      loginBloc.updatePw(_pwController.text);
+    });
+
+    loginBloc.updateLoginButton(false);
+    loginBloc.setMaxAppBarHeight = appHeight * 0.24;
+    loginBloc.setMinAppBarHeight = appHeight * 0.12;
+    loginBloc.setAppBarHeightMax();
   }
 
   @override
@@ -66,41 +56,25 @@ class _LoginPageState extends State<LoginPage> {
 
     _idController.dispose();
     _pwController.dispose();
-    _textFocusNode.dispose();
-
-    _appBarHeightSubject.close();
-    _idButtonSubject.close();
-    _pwButtonSubject.close();
-    _indicatorSubject.close();
+    loginBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    final double appWidth = MediaQuery.of(context).size.width;
-
-    if (init) {
-      _loginButtonSubject.add(false);
-      _appBarHeightSubject.add(appHeight * 0.24);
-      init = false;
-    }
 
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
-        _appBarHeightSubject.add(appHeight * 0.24);
-        _idButtonSubject.add(false);
-        _pwButtonSubject.add(false);
-        _activateLoginButton();
+        loginBloc.onUnfocus();
       },
       child: Scaffold(
         body: Column(
           children: <Widget>[
             StreamBuilder<double>(
-              stream: _appBarHeightSubject.stream,
+              stream: loginBloc.appBarHeight,
               builder: (context, snapshot) {
                 return AnimatedContainer(
-                  duration: _animationDuration,
+                  duration: animationDuration,
                   height:
                       MediaQuery.of(context).padding.top + (snapshot.data ?? 0),
                   color: Colors.blue,
@@ -108,13 +82,13 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
             StreamBuilder(
-                stream: _appBarHeightSubject.stream,
+                stream: loginBloc.appBarHeight,
                 builder: (context, snapshot) {
                   return AnimatedContainer(
                     height: (snapshot.data == appHeight * 0.24)
                         ? appHeight * 0.055
                         : appHeight * 0.026,
-                    duration: _animationDuration,
+                    duration: animationDuration,
                     child: const SizedBox.shrink(),
                   );
                 }),
@@ -122,31 +96,40 @@ class _LoginPageState extends State<LoginPage> {
               width: appWidth * 0.9,
               height: appHeight * 0.0575 * 2,
               decoration: BoxDecoration(
-                border: Border.all(color: _borderColor),
+                border: Border.all(color: borderColor),
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
               ),
               child: Column(
                 children: <Widget>[
                   InputForm(
                     controller: _idController,
-                    behaviorSubject: _idButtonSubject,
+                    inputType: InputType.id,
+                    buttonStream: loginBloc.idButton,
                     focusNode: _textFocusNode,
                     height: appHeight * 0.0555,
                     visibleBorder: false,
                     existNext: true,
                     hint: '전화번호 또는 이메일',
                     onTap: () {
-                      _appBarHeightSubject.add(appHeight * 0.12);
+                      loginBloc.setAppBarHeightMin();
+                      loginBloc.toggleIdButton();
                     },
-                    onChanged: _inputFormOnChanged,
+                    onSubmitted: () {
+                      loginBloc.updateIdButton(false);
+                    },
+                    onChanged: () {
+                      loginBloc.toggleIdButton();
+                      loginBloc.toggleLoginButton();
+                    },
                   ),
                   Container(
                     height: 1,
-                    color: _borderColor,
+                    color: borderColor,
                   ),
                   InputForm(
                     controller: _pwController,
-                    behaviorSubject: _pwButtonSubject,
+                    inputType: InputType.pw,
+                    buttonStream: loginBloc.pwButton,
                     focusNode: _textFocusNode,
                     height: appHeight * 0.0555,
                     visibleBorder: false,
@@ -154,12 +137,17 @@ class _LoginPageState extends State<LoginPage> {
                     existNext: false,
                     hint: '비밀번호',
                     onTap: () {
-                      _appBarHeightSubject.add(appHeight * 0.12);
+                      loginBloc.setAppBarHeightMin();
+                      loginBloc.togglePwButton();
                     },
                     onSubmitted: () {
-                      _appBarHeightSubject.add(appHeight * 0.24);
+                      loginBloc.setAppBarHeightMax();
+                      loginBloc.updatePwButton(false);
                     },
-                    onChanged: _inputFormOnChanged,
+                    onChanged: () {
+                      loginBloc.toggleLoginButton();
+                      loginBloc.togglePwButton();
+                    },
                   ),
                 ],
               ),
@@ -173,15 +161,15 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.blue,
               ),
               child: StreamBuilder(
-                stream: _loginButtonSubject.stream,
+                stream: loginBloc.loginButton,
                 builder: (context, snapshot) {
                   return MaterialButton(
                     onPressed: snapshot.data == true
                         ? () async {
                             FocusScope.of(context).unfocus();
-                            _indicatorSubject.add(true);
+                            loginBloc.setAppBarHeightMax();
+                            loginBloc.updateIndicator(true);
                             _textFocusNode.unfocus();
-                            _appBarHeightSubject.add(appHeight * 0.24);
 
                             try {
                               await FirebaseAuth.instance
@@ -189,37 +177,27 @@ class _LoginPageState extends State<LoginPage> {
                                 email: _idController.text,
                                 password: _pwController.text,
                               );
-
-                              // ignore: use_build_context_synchronously
-                              Navigator.of(context).pushReplacement(
-                                PageRouteBuilder(
-                                  // ignore: prefer_const_constructors
-                                  pageBuilder: (context, _, __) => MainPage(
-                                  ),
-                                  transitionDuration:
-                                      const Duration(seconds: 0),
-                                ),
-                              );
                             } on FirebaseAuthException catch (error) {
-                              _indicatorSubject.add(false);
+                              loginBloc.updateIndicator(false);
                               if (error.code == 'wrong-password') {
                                 showCupertinoDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return CupertinoAlertDialog(
-                                        content: const Text(
-                                          '이메일 혹은 비밀번호가 잘못입력되었습니다.',
+                                  context: context,
+                                  builder: (context) {
+                                    return CupertinoAlertDialog(
+                                      content: const Text(
+                                        '이메일 혹은 비밀번호가 잘못입력되었습니다.',
+                                      ),
+                                      actions: <Widget>[
+                                        CupertinoButton(
+                                          child: const Text('확인'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
                                         ),
-                                        actions: <Widget>[
-                                          CupertinoButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    });
+                                      ],
+                                    );
+                                  },
+                                );
                               }
                               log('Error : $error');
                             }
@@ -229,17 +207,18 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         StreamBuilder(
-                            stream: _indicatorSubject.stream,
-                            builder: (context, snapshot) {
-                              if (snapshot.data == true) {
-                                return const CupertinoActivityIndicator(
-                                  color: Colors.blue,
-                                  animating: false,
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            }),
+                          stream: loginBloc.indicator,
+                          builder: (context, snapshot) {
+                            if (snapshot.data == true) {
+                              return const CupertinoActivityIndicator(
+                                color: Colors.blue,
+                                animating: false,
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
                         const Text(
                           '로그인',
                           style: TextStyle(
@@ -248,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         StreamBuilder(
-                          stream: _indicatorSubject.stream,
+                          stream: loginBloc.indicator,
                           builder: (context, snapshot) {
                             if (snapshot.data == true) {
                               return const CupertinoActivityIndicator();
@@ -276,17 +255,21 @@ class _LoginPageState extends State<LoginPage> {
               ),
               onPressed: () {},
             ),
+            const Expanded(
+              child: SizedBox.shrink(),
+            ),
+            /*(
             StreamBuilder(
-                stream: _appBarHeightSubject.stream,
+                stream: loginBloc.appBarHeight,
                 builder: (context, snapshot) {
                   return AnimatedContainer(
                     height: (snapshot.data == appHeight * 0.24)
                         ? appHeight * 0.276
                         : appHeight * 0.076,
-                    duration: _animationDuration,
+                    duration: animationDuration,
                     child: const SizedBox.shrink(),
                   );
-                }),
+                }),)*/
             SizedBox(
               height: appHeight * 0.07,
               child: Row(
@@ -295,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     width: appWidth * 0.27,
                     child: Divider(
-                      color: _borderColor,
+                      color: borderColor,
                     ),
                   ),
                   Container(
@@ -306,30 +289,35 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       '또는',
                       style: TextStyle(
-                        color: _borderColor,
+                        color: borderColor,
                       ),
                     ),
                   ),
                   SizedBox(
                     width: appWidth * 0.27,
                     child: Divider(
-                      color: _borderColor,
+                      color: borderColor,
                     ),
                   ),
                 ],
               ),
             ),
-            Container(
-              width: appWidth * 0.9,
-              height: appHeight * 0.0515,
-              margin: EdgeInsets.only(bottom: appHeight * 0.02),
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                color: Colors.blue,
-              ),
-              child: MaterialButton(
-                highlightColor: Colors.transparent,
-                onPressed: () {
+            SafeArea(
+              top:false,
+              right: false,
+              left: false,
+              child: Container(
+                width: appWidth * 0.9,
+                height: appHeight * 0.0515,
+                margin: EdgeInsets.only(bottom: appHeight * 0.02),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  color: Colors.blue,
+                ),
+                child: MaterialButton(
+                  highlightColor: Colors.transparent,
+                  onPressed: () {
+                    /*
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
@@ -338,12 +326,15 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     ),
                   );
-                },
-                child: const Text(
-                  '새 계정 만들기',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+
+                   */
+                  },
+                  child: const Text(
+                    '새 계정 만들기',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/global_model.dart';
+
 class CustomSliverAppBarButton extends StatelessWidget {
   const CustomSliverAppBarButton({
     Key? key,
@@ -12,7 +14,6 @@ class CustomSliverAppBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight = MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 
     return Container(
       width: appHeight * 0.045,

@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:facebook/MenuPage/widgets/just_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,17 +11,26 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 
-import '../LoginPage/LoginPage.dart';
-import '../Global_Widgets/widget_custom_sliver_appbar.dart';
-import '../Global_Widgets/widget_custom_sliver_appbar_button.dart';
-import '../Global_Widgets/widget_custom_sliver_appbar_shadow.dart';
-import 'menuData.dart';
-import 'widgets/big_short_cut_button.dart';
-import 'widgets/hidden_menu_button.dart';
-import 'widgets/short_cut_button.dart';
+import '../bloc/menu_bloc.dart';
+import '../components/menu_page/big_short_cut_button.dart';
+import '../components/menu_page/hidden_menu_button.dart';
+import '../components/menu_page/just_button.dart';
+import '../components/menu_page/short_cut_button.dart';
+import '../components/custom_sliver_appbar.dart';
+import '../components/custom_sliver_appbar_button.dart';
+import '../components/custom_sliver_appbar_shadow.dart';
+import '../models/global_model.dart';
+import '../models/menu_data.dart';
 
 class MenuPage extends StatefulWidget {
-  const MenuPage({Key? key}) : super(key: key);
+  const MenuPage({
+    Key? key,
+    required this.scrollController,
+    required this.isOnScreen,
+  }) : super(key: key);
+
+  final ScrollController scrollController;
+  final bool isOnScreen;
 
   @override
   State<MenuPage> createState() => _MenuPageState();
@@ -30,25 +38,18 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage>
     with AutomaticKeepAliveClientMixin<MenuPage> {
-  final ScrollController _scrollController = ScrollController();
-  final BehaviorSubject<double> _scrollSubject = BehaviorSubject<double>();
-  final BehaviorSubject<bool> _shortCutSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _communityResourceSubject =
-      BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _helpSubject = BehaviorSubject<bool>();
+  bool _isShowingShortCut = false;
+  bool _isShowingCommunityResource = false;
+  bool _isShowingHelp = false;
+  bool _isShowingSetting = false;
+  bool _isShowingAnotherProduct = false;
 
-  bool isShowingShortCut = false;
-  bool isShowingCommunityResource = false;
-  bool isShowingHelp = false;
-  bool isShowingSetting = false;
-  bool isShowingAnotherProduct = false;
-
-  final Duration _seeMoreDuration = const Duration(milliseconds: 200);
-  final Duration _opacityDuration = const Duration(milliseconds: 50);
+  final Duration _seeMoreDuration = const Duration(milliseconds: 0);
+  final Duration _opacityDuration = const Duration(milliseconds: 0);
   final Duration _scrollDuration = const Duration(milliseconds: 250);
   final Duration _showingHiddenMenuDuration = const Duration(milliseconds: 300);
 
-  final MenuData menuData = MenuData();
+  final menuBloc = MenuBloc();
 
   @override
   bool get wantKeepAlive => true;
@@ -57,42 +58,32 @@ class _MenuPageState extends State<MenuPage>
   initState() {
     super.initState();
 
-    _scrollController.addListener(() {
-      _scrollSubject.add(_scrollController.offset);
+    widget.scrollController.addListener(() {
+      menuBloc.updateScrollOffset(widget.scrollController.offset);
     });
-    _shortCutSubject.add(false);
-    _communityResourceSubject.add(false);
-    _helpSubject.add(false);
+
+    menuBloc.init();
   }
 
   @override
   dispose() {
     super.dispose();
-    _scrollController.removeListener(() {
-      _scrollSubject.add(_scrollController.offset);
+
+    widget.scrollController.removeListener(() {
+      menuBloc.updateScrollOffset(widget.scrollController.offset);
     });
-    _scrollController.dispose();
-    _scrollSubject.close();
-    _shortCutSubject.close();
-    _communityResourceSubject.close();
-    _helpSubject.close();
+
+    menuBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // 768
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    // 375
-    final double appWidth = MediaQuery.of(context).size.width;
-
     final double appBarHeight = const SliverAppBar().toolbarHeight;
     final double navigationBarHeight = appHeight * 0.103;
     final double myProfileHeight = appHeight * 0.04;
     final double shortCutMenusHeight = appHeight *
         0.09 *
-        math.max(menuData.leftShortCutList.length,
-            menuData.rightShortCutList.length);
+        math.max(leftShortCutList.length, rightShortCutList.length);
     final double hiddenMenuHeight = appHeight * 0.215;
     final double justButtonHeight = appHeight * 0.075;
     final double cRHeight = appHeight * 0.3225;
@@ -101,15 +92,15 @@ class _MenuPageState extends State<MenuPage>
     super.build(context);
 
     double _calCRScrollOffset() {
-      if (isShowingShortCut && isShowingHelp) {
+      if (_isShowingShortCut && _isShowingHelp) {
         return appHeight * 0.914;
       }
 
-      if (isShowingShortCut) {
+      if (_isShowingShortCut) {
         return appHeight * 0.77;
       }
 
-      if (isShowingHelp) {
+      if (_isShowingHelp) {
         return appHeight * 0.68;
       }
 
@@ -117,15 +108,15 @@ class _MenuPageState extends State<MenuPage>
     }
 
     double _calHelpScrollOffset() {
-      if (isShowingShortCut && isShowingCommunityResource) {
+      if (_isShowingShortCut && _isShowingCommunityResource) {
         return appHeight * 1.232;
       }
 
-      if (isShowingShortCut) {
+      if (_isShowingShortCut) {
         return appHeight * 0.91;
       }
 
-      if (isShowingCommunityResource) {
+      if (_isShowingCommunityResource) {
         return appHeight * 1.017;
       }
 
@@ -133,8 +124,16 @@ class _MenuPageState extends State<MenuPage>
     }
 
     return ScrollsToTop(
-      onScrollsToTop: (_) async {
-        log('scroll to top done!');
+      onScrollsToTop: (event) async {
+        if (!widget.isOnScreen) {
+          return;
+        }
+
+        widget.scrollController.animateTo(
+          event.to,
+          duration: event.duration,
+          curve: event.curve,
+        );
       },
       child: Scaffold(
         backgroundColor: const Color.fromRGBO(240, 241, 245, 1),
@@ -142,12 +141,11 @@ class _MenuPageState extends State<MenuPage>
           child: Column(
             children: <Widget>[
               CustomSliverAppBarShadow(
-                scrollOffsetStream: _scrollSubject.stream,
+                scrollOffsetStream: menuBloc.scrollOffset,
               ),
-              SizedBox(
-                height: appHeight - navigationBarHeight - 1,
+              Expanded(
                 child: CustomScrollView(
-                  controller: _scrollController,
+                  controller: widget.scrollController,
                   slivers: <Widget>[
                     CustomSliverAppBar(
                       title: '메뉴',
@@ -182,17 +180,25 @@ class _MenuPageState extends State<MenuPage>
                                 shape: BoxShape.circle,
                                 color: Color.fromRGBO(200, 200, 200, 1),
                               ),
+                              child: Padding(
+                                padding: EdgeInsets.zero,
+                                child: Image.asset(
+                                  'assets/menuPage/account_default.png',
+                                  height: appWidth * 0.10,
+                                ),
+                              ),
+                              /*
                               child: FutureBuilder(
                                 future: FirebaseStorage.instance
                                     .ref()
                                     .child('users')
                                     .child(
-                                    '${FirebaseAuth.instance.currentUser?.uid}')
+                                        '${FirebaseAuth.instance.currentUser?.uid}')
                                     .child('profileImage.png')
                                     .getDownloadURL(),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasError) {
-                                    log('error : ${snapshot.hasError}');
+                                    log('error : ${snapshot.error}');
                                   }
 
                                   if (snapshot.hasData) {
@@ -208,6 +214,7 @@ class _MenuPageState extends State<MenuPage>
                                   }
                                 },
                               ),
+                              */
                             ),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,19 +229,21 @@ class _MenuPageState extends State<MenuPage>
                                     future: FirebaseFirestore.instance
                                         .collection('user')
                                         .doc(
-                                        '${FirebaseAuth.instance.currentUser?.uid}')
+                                            '${FirebaseAuth.instance.currentUser?.uid}')
                                         .get(),
                                     builder: (context,
                                         AsyncSnapshot<DocumentSnapshot>
-                                        snapshot) {
+                                            snapshot) {
                                       if (snapshot.hasError) {
                                         return const CupertinoActivityIndicator();
                                       }
 
-                                      if (snapshot.hasData) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.exists) {
                                         return Text(
                                           snapshot.data!['name'].toString(),
                                           style: TextStyle(
+                                            color: Colors.black,
                                             fontSize: 20,
                                             fontWeight: FontWeight.lerp(
                                                 FontWeight.w400,
@@ -274,23 +283,23 @@ class _MenuPageState extends State<MenuPage>
                         children: <Widget>[
                           Column(
                             children: List.generate(
-                              menuData.leftShortCutList.length,
-                                  (index) => (ShortCutButton(
-                                image: menuData.leftShortCutList
-                                    .elementAt(index)['image'],
-                                label: menuData.leftShortCutList
-                                    .elementAt(index)['label'],
+                              leftShortCutList.length,
+                              (index) => (ShortCutButton(
+                                image:
+                                    leftShortCutList.elementAt(index).image,
+                                label:
+                                    leftShortCutList.elementAt(index).label,
                               )),
                             ),
                           ),
                           Column(
                             children: List.generate(
-                              menuData.rightShortCutList.length,
-                                  (index) => (ShortCutButton(
-                                image: menuData.rightShortCutList
-                                    .elementAt(index)['image'],
-                                label: menuData.rightShortCutList
-                                    .elementAt(index)['label'],
+                              rightShortCutList.length,
+                              (index) => (ShortCutButton(
+                                image:
+                                    rightShortCutList.elementAt(index).image,
+                                label:
+                                    rightShortCutList.elementAt(index).label,
                               )),
                             ),
                           ),
@@ -301,7 +310,7 @@ class _MenuPageState extends State<MenuPage>
                       child: Stack(
                         children: <Widget>[
                           StreamBuilder(
-                              stream: _shortCutSubject.stream,
+                              stream: menuBloc.isShowingShortCut,
                               builder: (context, AsyncSnapshot<bool> snapshot) {
                                 return AnimatedContainer(
                                   height: snapshot.data ?? false
@@ -314,33 +323,28 @@ class _MenuPageState extends State<MenuPage>
                                         ? _opacityDuration
                                         : _seeMoreDuration,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
                                       children: <Widget>[
                                         Column(
                                           children: List.generate(
-                                            menuData
-                                                .hiddenLeftShortCutList.length,
+                                            hiddenLeftShortCutList.length,
                                                 (index) => (ShortCutButton(
-                                              image: menuData
-                                                  .hiddenLeftShortCutList
-                                                  .elementAt(index)['image'],
-                                              label: menuData
-                                                  .hiddenLeftShortCutList
-                                                  .elementAt(index)['label'],
+                                              image: hiddenLeftShortCutList
+                                                  .elementAt(index).image,
+                                              label: hiddenLeftShortCutList
+                                                  .elementAt(index).label,
                                             )),
                                           ),
                                         ),
                                         Column(
                                           children: List.generate(
-                                            menuData
-                                                .hiddenRightShortCutList.length,
+                                            hiddenRightShortCutList.length,
                                                 (index) => (ShortCutButton(
-                                              image: menuData
-                                                  .hiddenRightShortCutList
-                                                  .elementAt(index)['image'],
-                                              label: menuData
-                                                  .hiddenRightShortCutList
-                                                  .elementAt(index)['label'],
+                                              image: hiddenRightShortCutList
+                                                  .elementAt(index).image,
+                                              label: hiddenRightShortCutList
+                                                  .elementAt(index).label,
                                             )),
                                           ),
                                         ),
@@ -350,7 +354,7 @@ class _MenuPageState extends State<MenuPage>
                                 );
                               }),
                           StreamBuilder(
-                              stream: _shortCutSubject.stream,
+                              stream: menuBloc.isShowingShortCut,
                               builder: (context, AsyncSnapshot<bool> snapshot) {
                                 return Column(
                                   children: <Widget>[
@@ -366,12 +370,12 @@ class _MenuPageState extends State<MenuPage>
                                           ? '간단히 보기'
                                           : '더 보기',
                                       onPress: () {
-                                        if (isShowingShortCut) {
-                                          _shortCutSubject.add(false);
+                                        if (_isShowingShortCut) {
+                                          menuBloc.updateIsShowingShortCut(false);
                                         } else {
-                                          _shortCutSubject.add(true);
+                                          menuBloc.updateIsShowingShortCut(true);
                                         }
-                                        isShowingShortCut = !isShowingShortCut;
+                                        _isShowingShortCut = !_isShowingShortCut;
                                       },
                                     ),
                                   ],
@@ -384,7 +388,7 @@ class _MenuPageState extends State<MenuPage>
                       child: HiddenMenuButton(
                         label: '커뮤니티 리소스',
                         hiddenMenu: StreamBuilder(
-                            stream: _communityResourceSubject.stream,
+                            stream: menuBloc.isShowingCommunityResource,
                             builder: (context, AsyncSnapshot<bool> snapshot) {
                               return AnimatedOpacity(
                                 opacity: snapshot.data ?? false ? 1 : 0,
@@ -396,29 +400,23 @@ class _MenuPageState extends State<MenuPage>
                                   children: <Widget>[
                                     Column(
                                       children: List.generate(
-                                        (menuData
-                                            .communityResourceLeftList.length),
-                                            (index) => (ShortCutButton(
-                                          image: menuData
-                                              .communityResourceLeftList
-                                              .elementAt(index)['image'],
-                                          label: menuData
-                                              .communityResourceLeftList
-                                              .elementAt(index)['label'],
+                                        (communityResourceLeftList.length),
+                                        (index) => (ShortCutButton(
+                                          image: communityResourceLeftList
+                                              .elementAt(index).image,
+                                          label: communityResourceLeftList
+                                              .elementAt(index).label,
                                         )),
                                       ),
                                     ),
                                     Column(
                                       children: List.generate(
-                                        (menuData
-                                            .communityResourceRightList.length),
-                                            (index) => (ShortCutButton(
-                                          image: menuData
-                                              .communityResourceRightList
-                                              .elementAt(index)['image'],
-                                          label: menuData
-                                              .communityResourceRightList
-                                              .elementAt(index)['label'],
+                                        (communityResourceRightList.length),
+                                        (index) => (ShortCutButton(
+                                          image: communityResourceRightList
+                                              .elementAt(index).image,
+                                          label: communityResourceRightList
+                                              .elementAt(index).label,
                                         )),
                                       ),
                                     ),
@@ -428,10 +426,11 @@ class _MenuPageState extends State<MenuPage>
                             }),
                         hiddenMenuHeight: cRHeight,
                         onShowingEnd: () async {
-                          _communityResourceSubject.add(true);
-                          isShowingCommunityResource = true;
+                          menuBloc.updateIsShowingCommunityResource(true);
+                          _isShowingCommunityResource = true;
+
                           await Future.delayed(_showingHiddenMenuDuration).then(
-                                (_) => (_scrollController.animateTo(
+                            (_) => (widget.scrollController.animateTo(
                               _calCRScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
@@ -439,8 +438,8 @@ class _MenuPageState extends State<MenuPage>
                           );
                         },
                         onNShowingEnd: () {
-                          _communityResourceSubject.add(false);
-                          isShowingCommunityResource = false;
+                          menuBloc.updateIsShowingCommunityResource(false);
+                          _isShowingCommunityResource = false;
                         },
                       ),
                     ),
@@ -448,7 +447,7 @@ class _MenuPageState extends State<MenuPage>
                       child: HiddenMenuButton(
                         label: '도움말 및 지원',
                         hiddenMenu: StreamBuilder(
-                            stream: _helpSubject.stream,
+                            stream: menuBloc.isShowingHelp,
                             builder: (context, AsyncSnapshot<bool> snapshot) {
                               return AnimatedOpacity(
                                 opacity: snapshot.data ?? false ? 1 : 0,
@@ -462,12 +461,12 @@ class _MenuPageState extends State<MenuPage>
                                   ),
                                   child: Column(
                                     children: List.generate(
-                                      menuData.helpList.length,
-                                          (index) => BigShortCutButton(
-                                        label: menuData.helpList
-                                            .elementAt(index)['label'],
-                                        image: menuData.helpList
-                                            .elementAt(index)['image'],
+                                      helpList.length,
+                                      (index) => BigShortCutButton(
+                                        label:
+                                            helpList.elementAt(index).label,
+                                        image:
+                                            helpList.elementAt(index).image,
                                       ),
                                     ),
                                   ),
@@ -476,10 +475,10 @@ class _MenuPageState extends State<MenuPage>
                             }),
                         hiddenMenuHeight: helpHeight,
                         onShowingEnd: () async {
-                          _helpSubject.add(true);
-                          isShowingHelp = true;
+                          menuBloc.updateIsShowingHelp(true);
+                          _isShowingHelp = true;
                           await Future.delayed(_showingHiddenMenuDuration).then(
-                                (_) => (_scrollController.animateTo(
+                            (_) => (widget.scrollController.animateTo(
                               _calHelpScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
@@ -487,8 +486,8 @@ class _MenuPageState extends State<MenuPage>
                           );
                         },
                         onNShowingEnd: () {
-                          _helpSubject.add(false);
-                          isShowingHelp = false;
+                          menuBloc.updateIsShowingHelp(false);
+                          _isShowingHelp = false;
                         },
                       ),
                     ),
@@ -534,19 +533,9 @@ class _MenuPageState extends State<MenuPage>
                                   ),
                                   CupertinoActionSheetAction(
                                     onPressed: () async {
-                                      dispose();
-                                      await FirebaseAuth.instance.signOut();
+                                      Navigator.of(context).pop();
 
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.of(context).pushReplacement(
-                                        PageRouteBuilder(
-                                          // ignore: prefer_const_constructors
-                                          pageBuilder: (context, _, __) =>
-                                          const LoginPage(),
-                                          transitionDuration:
-                                          const Duration(seconds: 0),
-                                        ),
-                                      );
+                                      await FirebaseAuth.instance.signOut();
                                     },
                                     child: const Text(
                                       '저장하지 않고 로그아웃',
