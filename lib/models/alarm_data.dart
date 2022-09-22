@@ -1,6 +1,6 @@
 // ignore_for_file: file_names
 /// ****************************************************************************
-/// 사용자 개인마다 알림들을 저장해놓는 파일을 만들어서 그 파일을 불러오는 쪽으로 설계
+///
 ///
 ///*****************************************************************************
 
@@ -49,6 +49,16 @@ enum PostType {
 
 final List<AlarmData> alarms = [
   AlarmData(
+    user: 'NVIDIA GeForce Korea',
+    userType: UserType.groupPage,
+    uid: 'eidlsfkdf',
+    postType: PostType.video,
+    content: 'Portal RTX',
+    video: '131313',
+    timeStamp: 1663725600 * 1000,
+    isRead: false,
+  ),
+  AlarmData(
     user: 'Hardwell',
     userType: UserType.groupPerson,
     uid: 'asdfqwer',
@@ -57,6 +67,46 @@ final List<AlarmData> alarms = [
         'Can\'t wait to be back in NYC again next week. Grab your tickets ..',
     video: '121212',
     timeStamp: 1662897600 * 1000,
+    isRead: false,
+  ),
+  AlarmData(
+    user: 'NVIDIA GeForce Korea',
+    userType: UserType.groupPage,
+    uid: 'eidlsfkdf',
+    postType: PostType.video,
+    content: '<더 위쳐3> - 게임 플레이',
+    video: '131314',
+    timeStamp: 1662120000 * 1000,
+    isRead: false,
+  ),
+  AlarmData(
+    user: 'NVIDIA GeForce Korea',
+    userType: UserType.groupPage,
+    uid: 'eidlsfkdf',
+    postType: PostType.video,
+    content: 'GeForce Garage - Hydropower PC',
+    video: '131315',
+    timeStamp: 1661994000 * 1000,
+    isRead: false,
+  ),
+  AlarmData(
+    user: 'NVIDIA GeForce Korea',
+    userType: UserType.groupPage,
+    uid: 'eidlsfkdf',
+    postType: PostType.video,
+    content: 'GeForce Garage - Hydropower PC',
+    video: '131315',
+    timeStamp: 1661994000 * 1000,
+    isRead: false,
+  ),
+  AlarmData(
+    user: 'NVIDIA GeForce Korea',
+    userType: UserType.groupPage,
+    uid: 'eidlsfkdf',
+    postType: PostType.video,
+    content: 'GeForce Garage - Hydropower PC',
+    video: '131315',
+    timeStamp: 1661994000 * 1000,
     isRead: false,
   ),
 ];

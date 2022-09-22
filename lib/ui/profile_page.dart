@@ -9,7 +9,10 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({
     Key? key,
     required this.scrollController,
+    required this.isOnScreen,
   }) : super(key: key);
+
+  final bool isOnScreen;
 
   final ScrollController scrollController;
 
@@ -24,7 +27,9 @@ class _ProfilePageState extends State<ProfilePage> {
     // ignore: prefer_const_constructors
     return ScrollsToTop(
       onScrollsToTop: (event) async {
-
+        if(!widget.isOnScreen) {
+          return;
+    }
         if(widget.scrollController.hasClients) {
           widget.scrollController.animateTo(
             event.to,

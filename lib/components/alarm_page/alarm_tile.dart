@@ -10,13 +10,21 @@ class AlarmTile extends StatelessWidget {
   const AlarmTile({
     Key? key,
     required this.alarmData,
+    required this.isRead,
+    this.onPressed,
   }) : super(key: key);
 
   final AlarmData alarmData;
+  final bool isRead;
+  final Function()? onPressed;
+
+  final Color _unReadColor = const Color.fromRGBO(231, 242, 254, 1);
+  final Color _readColor = Colors.white;
 
   String _calculateDuration() {
     DateTime now = DateTime.now();
-    DateTime postedDate = DateTime.fromMillisecondsSinceEpoch(alarmData.timeStamp);
+    DateTime postedDate =
+        DateTime.fromMillisecondsSinceEpoch(alarmData.timeStamp);
 
     int diff = now.difference(postedDate).inHours;
 
@@ -63,7 +71,7 @@ class AlarmTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: appHeight * 0.12,
-      color: alarmData.isRead ? Colors.white : Color.fromRGBO(231, 242, 254, 1),
+      color: isRead ? _readColor : _unReadColor,
       child: MaterialButton(
         padding: EdgeInsets.zero,
         splashColor: Colors.transparent,
@@ -136,7 +144,7 @@ class AlarmTile extends StatelessWidget {
                             text: _writeWhatPosted(),
                           ),
                           TextSpan(
-                            text: alarmData.content,
+                            text: '\'${alarmData.content}\'',
                           ),
                         ],
                       ),
@@ -155,17 +163,32 @@ class AlarmTile extends StatelessWidget {
             CupertinoButton(
               child: const Icon(
                 Icons.more_horiz,
-                color: Colors.grey,
+                color: Colors.black,
                 size: 30,
               ),
               onPressed: () {
-                log('pushed more button');
+                showModalBottomSheet(
+                  context: context,
+                  enableDrag: true,
+                  clipBehavior: Clip.antiAlias,
+                  backgroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(25),
+                    ),
+                  ),
+                  builder: (context) {
+                    return SizedBox(
+                      height: appHeight * 0.47,
+                    );
+                  },
+                );
               },
             ),
           ],
         ),
         onPressed: () {
-          log('pushed button');
+          onPressed?.call();
         },
       ),
     );

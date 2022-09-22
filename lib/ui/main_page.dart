@@ -239,6 +239,7 @@ class _MainPageState extends State<MainPage> {
             WatchPage(),
             ProfilePage(
               scrollController: _profilePageScrollController,
+              isOnScreen: currentIndex == 2,
             ),
             FriendPage(),
             AlarmPage(

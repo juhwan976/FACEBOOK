@@ -47,7 +47,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final double buttonHeight = appHeight * 0.065;
+    final double buttonHeight = appHeight * 0.07;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +58,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
           child: SizedBox(height: 1),
         ),
         Container(
-          height: appHeight * 0.065,
+          height: appHeight * 0.071,
           padding: EdgeInsets.only(
             left: appHeight * 0.02,
             right: appHeight * 0.02,

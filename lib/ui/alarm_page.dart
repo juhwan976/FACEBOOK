@@ -1,17 +1,19 @@
 // ignore_for_file: file_names
-
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 
+import '../bloc/alarm_bloc.dart';
 import '../components/alarm_page/alarm_tile.dart';
+import '../components/alarm_page/loading_tile.dart';
 import '../components/custom_sliver_appbar.dart';
 import '../components/custom_sliver_appbar_button.dart';
 import '../components/custom_sliver_appbar_shadow.dart';
 import '../models/alarm_data.dart';
+import '../models/global_model.dart';
 
 class AlarmPage extends StatefulWidget {
   const AlarmPage({
@@ -29,49 +31,66 @@ class AlarmPage extends StatefulWidget {
 
 class _AlarmPageState extends State<AlarmPage>
     with AutomaticKeepAliveClientMixin<AlarmPage> {
-  final BehaviorSubject<double> _scrollSubject = BehaviorSubject<double>();
+  /*
+  final _scrollSubject = BehaviorSubject<double>();
+  final _alarmsLengthSubject = BehaviorSubject<int>();
+   */
+  final _storage = LocalStorage('alarm_page');
+
+  final double appBarHeight = const SliverAppBar().toolbarHeight;
+  final double appBarShadowHeight = 1.0;
+  final double navigationBarHeight = appHeight * 0.103;
+  final double selectButtonHeight = appHeight * 0.078;
+  final double beforeAlarmTextHeight = appHeight * 0.035;
+  final double loadingTileHeight = appHeight * 0.12;
 
   final activeColor = const Color.fromRGBO(231, 242, 254, 1);
   final activeFontColor = const Color.fromRGBO(0, 90, 204, 1);
   final inActiveColor = const Color.fromRGBO(227, 228, 234, 1);
   final inActiveFontColor = const Color.fromRGBO(8, 8, 8, 1);
 
+  final alarmBloc = AlarmBloc();
+  List<bool> temp = [];
+
   int index = 0;
 
   @override
   bool get wantKeepAlive => true;
 
+  void listener() {
+    alarmBloc.updateScrollOffset(widget.scrollController.offset);
+    if (((widget.scrollController.position.maxScrollExtent -
+                loadingTileHeight * 2) <
+            widget.scrollController.offset) &&
+        alarms.length >= 6) {
+      alarmBloc.readMore();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
-    widget.scrollController.addListener(() {
-      _scrollSubject.add(widget.scrollController.offset);
-    });
+    widget.scrollController.addListener(listener);
+
+    alarmBloc.init();
+
+    temp = [...alarmBloc.parseIsReadsToList(temp)];
+    alarmBloc.updateIsReads(temp);
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    widget.scrollController.removeListener(() {
-      _scrollSubject.add(widget.scrollController.offset);
-    });
-    _scrollSubject.close();
+    widget.scrollController.removeListener(listener);
+
+    temp.clear();
+    alarmBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    final double appWidth = MediaQuery.of(context).size.width;
-
-    final double appBarHeight = const SliverAppBar().toolbarHeight;
-    const double appBarShadowHeight = 1.0;
-    final double navigationBarHeight = appHeight * 0.103;
-    final double selectButtonHeight = appHeight * 0.078;
-    final double beforeAlarmTextHeight = appHeight * 0.035;
-
     super.build(context);
 
     return ScrollsToTop(
@@ -80,11 +99,13 @@ class _AlarmPageState extends State<AlarmPage>
           return;
         }
 
-        widget.scrollController.animateTo(
-          event.to,
-          duration: event.duration,
-          curve: event.curve,
-        );
+        if (widget.scrollController.hasClients) {
+          widget.scrollController.animateTo(
+            event.to,
+            duration: event.duration,
+            curve: event.curve,
+          );
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -92,7 +113,7 @@ class _AlarmPageState extends State<AlarmPage>
           child: Column(
             children: [
               CustomSliverAppBarShadow(
-                scrollOffsetStream: _scrollSubject.stream,
+                scrollOffsetStream: alarmBloc.scrollOffset,
               ),
               Expanded(
                 child: CustomScrollView(
@@ -108,12 +129,9 @@ class _AlarmPageState extends State<AlarmPage>
                       ],
                     ),
                     CupertinoSliverRefreshControl(
-                      refreshTriggerPullDistance: 100,
+                      refreshTriggerPullDistance: appHeight * 0.1,
                       onRefresh: () async {
-                        await Future.delayed(const Duration(seconds: 1))
-                            .then((_) {
-                          log('refresh done!');
-                        });
+                        alarmBloc.refresh();
                       },
                     ),
                     SliverToBoxAdapter(
@@ -212,13 +230,88 @@ class _AlarmPageState extends State<AlarmPage>
                                 ),
                               ),
                             ),
-                            Column(
-                              children: List.generate(
-                                alarms.length,
-                                (index) => AlarmTile(
-                                  alarmData: alarms.elementAt(index),
-                                ),
-                              ),
+                            StreamBuilder(
+                              stream: alarmBloc.alarmLength,
+                              builder:
+                                  (context, AsyncSnapshot<int> lengthSnapshot) {
+                                if (lengthSnapshot.hasData) {
+                                  if (lengthSnapshot.data! >= 6) {
+                                    return StreamBuilder(
+                                      stream: alarmBloc.isReads,
+                                      builder: (context,
+                                          AsyncSnapshot<List<bool>>
+                                              isReadSnapshot) {
+                                        if (isReadSnapshot.hasData) {
+                                          temp = [];
+                                          temp = [...isReadSnapshot.data!];
+
+                                          return Column(
+                                            children: List.generate(
+                                              lengthSnapshot.data! + 2,
+                                              (index) {
+                                                if (index <
+                                                    lengthSnapshot.data!) {
+                                                  return AlarmTile(
+                                                    alarmData:
+                                                        alarms.elementAt(index),
+                                                    isRead: temp[index],
+                                                    onPressed: () {
+                                                      temp[index] = true;
+                                                      alarmBloc.updateIsReads(temp);
+                                                      alarms.elementAt(index).isRead = true;
+                                                    },
+                                                  );
+                                                } else {
+                                                  return LoadingTile(
+                                                    isEndStream:
+                                                        alarmBloc.isEnd,
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          );
+                                        }
+
+                                        return const CupertinoActivityIndicator();
+                                      },
+                                    );
+                                  } else {
+                                    return const CupertinoActivityIndicator();
+                                      /*StreamBuilder(
+                                        stream: alarmBloc.isReads,
+                                        builder: (context,
+                                            AsyncSnapshot<List<bool>>
+                                                snapshot) {
+                                          if (snapshot.hasData) {
+                                            temp = [...snapshot.data!];
+
+                                            return Column(
+                                              children: List.generate(
+                                                lengthSnapshot.data!,
+                                                (index) {
+                                                  return AlarmTile(
+                                                    alarmData:
+                                                        alarms.elementAt(index),
+                                                    isRead: snapshot.data!
+                                                        .elementAt(index),
+                                                    onPressed: () {
+                                                      temp[index] = true;
+                                                      alarmBloc
+                                                          .updateIsReads(temp);
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          }
+
+                                          return const CupertinoActivityIndicator();
+                                        })*/;
+                                  }
+                                }
+
+                                return const CupertinoActivityIndicator();
+                              },
                             ),
                           ],
                         ),

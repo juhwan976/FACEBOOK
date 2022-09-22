@@ -47,6 +47,8 @@ dependencies:
   bottom_bar_page_transition:
     path: packages/bottom_bar_page_transition-master/
 
+  localstorage: ^4.0.0+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

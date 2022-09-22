@@ -25,7 +25,7 @@ class BigShortCutButton extends StatelessWidget {
           right: appWidth * 0.0375,
           left: appWidth * 0.0375,
         ),
-        height: appHeight * 0.075,
+        height: appHeight * 0.078,
         decoration: BoxDecoration(
           borderRadius: _borderRadius,
           color: Colors.white,

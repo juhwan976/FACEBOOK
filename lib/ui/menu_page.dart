@@ -5,20 +5,18 @@ import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 
 import '../bloc/menu_bloc.dart';
+import '../components/custom_sliver_appbar.dart';
+import '../components/custom_sliver_appbar_button.dart';
+import '../components/custom_sliver_appbar_shadow.dart';
 import '../components/menu_page/big_short_cut_button.dart';
 import '../components/menu_page/hidden_menu_button.dart';
 import '../components/menu_page/just_button.dart';
 import '../components/menu_page/short_cut_button.dart';
-import '../components/custom_sliver_appbar.dart';
-import '../components/custom_sliver_appbar_button.dart';
-import '../components/custom_sliver_appbar_shadow.dart';
 import '../models/global_model.dart';
 import '../models/menu_data.dart';
 
@@ -38,18 +36,61 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage>
     with AutomaticKeepAliveClientMixin<MenuPage> {
+  final double appBarHeight = const SliverAppBar().toolbarHeight;
+  final double navigationBarHeight = appHeight * 0.103;
+  final double myProfileHeight = appHeight * 0.04;
+  final double shortCutMenusHeight = appHeight *
+      0.09 *
+      math.max(leftShortCutList.length, rightShortCutList.length);
+  final double hiddenMenuHeight = appHeight * 0.215;
+  final double justButtonHeight = appHeight * 0.075;
+  final double cRHeight = appHeight * 0.31;
+  final double helpHeight = appHeight * 0.46;
+
   bool _isShowingShortCut = false;
   bool _isShowingCommunityResource = false;
   bool _isShowingHelp = false;
   bool _isShowingSetting = false;
   bool _isShowingAnotherProduct = false;
 
-  final Duration _seeMoreDuration = const Duration(milliseconds: 0);
-  final Duration _opacityDuration = const Duration(milliseconds: 0);
+  final Duration _seeMoreDuration = const Duration(milliseconds: 200);
+  final Duration _opacityDuration = const Duration(milliseconds: 200);
   final Duration _scrollDuration = const Duration(milliseconds: 250);
   final Duration _showingHiddenMenuDuration = const Duration(milliseconds: 300);
 
   final menuBloc = MenuBloc();
+
+  double _calCRScrollOffset() {
+    if (_isShowingShortCut && _isShowingHelp) {
+      return 667;
+    }
+
+    if (_isShowingShortCut) {
+      return 562;
+    }
+
+    if (_isShowingHelp) {
+      return 500;
+    }
+
+    return 397;
+  }
+
+  double _calHelpScrollOffset() {
+    if (_isShowingShortCut && _isShowingCommunityResource) {
+      return 915;
+    }
+
+    if (_isShowingShortCut) {
+      return 677;
+    }
+
+    if (_isShowingCommunityResource) {
+      return 750;
+    }
+
+    return 512;
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -78,50 +119,7 @@ class _MenuPageState extends State<MenuPage>
 
   @override
   Widget build(BuildContext context) {
-    final double appBarHeight = const SliverAppBar().toolbarHeight;
-    final double navigationBarHeight = appHeight * 0.103;
-    final double myProfileHeight = appHeight * 0.04;
-    final double shortCutMenusHeight = appHeight *
-        0.09 *
-        math.max(leftShortCutList.length, rightShortCutList.length);
-    final double hiddenMenuHeight = appHeight * 0.215;
-    final double justButtonHeight = appHeight * 0.075;
-    final double cRHeight = appHeight * 0.3225;
-    final double helpHeight = appHeight * 0.375 + appWidth * 0.18;
-
     super.build(context);
-
-    double _calCRScrollOffset() {
-      if (_isShowingShortCut && _isShowingHelp) {
-        return appHeight * 0.914;
-      }
-
-      if (_isShowingShortCut) {
-        return appHeight * 0.77;
-      }
-
-      if (_isShowingHelp) {
-        return appHeight * 0.68;
-      }
-
-      return appHeight * 0.555;
-    }
-
-    double _calHelpScrollOffset() {
-      if (_isShowingShortCut && _isShowingCommunityResource) {
-        return appHeight * 1.232;
-      }
-
-      if (_isShowingShortCut) {
-        return appHeight * 0.91;
-      }
-
-      if (_isShowingCommunityResource) {
-        return appHeight * 1.017;
-      }
-
-      return appHeight * 0.7;
-    }
 
     return ScrollsToTop(
       onScrollsToTop: (event) async {
@@ -129,11 +127,13 @@ class _MenuPageState extends State<MenuPage>
           return;
         }
 
-        widget.scrollController.animateTo(
-          event.to,
-          duration: event.duration,
-          curve: event.curve,
-        );
+        if(widget.scrollController.hasClients) {
+          widget.scrollController.animateTo(
+            event.to,
+            duration: event.duration,
+            curve: event.curve,
+          );
+        }
       },
       child: Scaffold(
         backgroundColor: const Color.fromRGBO(240, 241, 245, 1),
@@ -285,10 +285,8 @@ class _MenuPageState extends State<MenuPage>
                             children: List.generate(
                               leftShortCutList.length,
                               (index) => (ShortCutButton(
-                                image:
-                                    leftShortCutList.elementAt(index).image,
-                                label:
-                                    leftShortCutList.elementAt(index).label,
+                                image: leftShortCutList.elementAt(index).image,
+                                label: leftShortCutList.elementAt(index).label,
                               )),
                             ),
                           ),
@@ -296,10 +294,8 @@ class _MenuPageState extends State<MenuPage>
                             children: List.generate(
                               rightShortCutList.length,
                               (index) => (ShortCutButton(
-                                image:
-                                    rightShortCutList.elementAt(index).image,
-                                label:
-                                    rightShortCutList.elementAt(index).label,
+                                image: rightShortCutList.elementAt(index).image,
+                                label: rightShortCutList.elementAt(index).label,
                               )),
                             ),
                           ),
@@ -307,81 +303,72 @@ class _MenuPageState extends State<MenuPage>
                       ),
                     ),
                     SliverToBoxAdapter(
-                      child: Stack(
-                        children: <Widget>[
-                          StreamBuilder(
-                              stream: menuBloc.isShowingShortCut,
-                              builder: (context, AsyncSnapshot<bool> snapshot) {
-                                return AnimatedContainer(
-                                  height: snapshot.data ?? false
-                                      ? hiddenMenuHeight
-                                      : 0,
-                                  duration: _seeMoreDuration,
-                                  child: AnimatedOpacity(
-                                    opacity: snapshot.data ?? false ? 1 : 0,
-                                    duration: snapshot.data ?? false
-                                        ? _opacityDuration
-                                        : _seeMoreDuration,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Column(
-                                          children: List.generate(
-                                            hiddenLeftShortCutList.length,
-                                                (index) => (ShortCutButton(
-                                              image: hiddenLeftShortCutList
-                                                  .elementAt(index).image,
-                                              label: hiddenLeftShortCutList
-                                                  .elementAt(index).label,
-                                            )),
-                                          ),
-                                        ),
-                                        Column(
-                                          children: List.generate(
-                                            hiddenRightShortCutList.length,
-                                                (index) => (ShortCutButton(
-                                              image: hiddenRightShortCutList
-                                                  .elementAt(index).image,
-                                              label: hiddenRightShortCutList
-                                                  .elementAt(index).label,
-                                            )),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                          StreamBuilder(
-                              stream: menuBloc.isShowingShortCut,
-                              builder: (context, AsyncSnapshot<bool> snapshot) {
-                                return Column(
+                      child: StreamBuilder(
+                        stream: menuBloc.isShowingShortCut,
+                        builder: (context, AsyncSnapshot<bool> snapshot) {
+                          return AnimatedContainer(
+                            height:
+                                snapshot.data ?? false ? hiddenMenuHeight : 0,
+                            duration: _seeMoreDuration,
+                            child: SingleChildScrollView(
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              child: AnimatedOpacity(
+                                opacity: snapshot.data ?? false ? 1 : 0,
+                                duration: _seeMoreDuration,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    AnimatedContainer(
-                                      height: snapshot.data ?? false
-                                          ? hiddenMenuHeight
-                                          : 0,
-                                      duration: _seeMoreDuration,
-                                      child: const SizedBox.shrink(),
+                                    Column(
+                                      children: List.generate(
+                                        hiddenLeftShortCutList.length,
+                                        (index) => (ShortCutButton(
+                                          image: hiddenLeftShortCutList
+                                              .elementAt(index)
+                                              .image,
+                                          label: hiddenLeftShortCutList
+                                              .elementAt(index)
+                                              .label,
+                                        )),
+                                      ),
                                     ),
-                                    JustButton(
-                                      label: snapshot.data ?? false
-                                          ? '간단히 보기'
-                                          : '더 보기',
-                                      onPress: () {
-                                        if (_isShowingShortCut) {
-                                          menuBloc.updateIsShowingShortCut(false);
-                                        } else {
-                                          menuBloc.updateIsShowingShortCut(true);
-                                        }
-                                        _isShowingShortCut = !_isShowingShortCut;
-                                      },
+                                    Column(
+                                      children: List.generate(
+                                        hiddenRightShortCutList.length,
+                                        (index) => (ShortCutButton(
+                                          image: hiddenRightShortCutList
+                                              .elementAt(index)
+                                              .image,
+                                          label: hiddenRightShortCutList
+                                              .elementAt(index)
+                                              .label,
+                                        )),
+                                      ),
                                     ),
                                   ],
-                                );
-                              }),
-                        ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: StreamBuilder(
+                        stream: menuBloc.isShowingShortCut,
+                        builder: (context, AsyncSnapshot<bool> snapshot) {
+                          return JustButton(
+                            label: snapshot.data ?? false ? '간단히 보기' : '더 보기',
+                            onPress: () async {
+                              if (_isShowingShortCut) {
+                                menuBloc.updateIsShowingShortCut(false);
+                              } else {
+                                menuBloc.updateIsShowingShortCut(true);
+                              }
+                              _isShowingShortCut = !_isShowingShortCut;
+                            },
+                          );
+                        },
                       ),
                     ),
                     SliverToBoxAdapter(
@@ -390,37 +377,49 @@ class _MenuPageState extends State<MenuPage>
                         hiddenMenu: StreamBuilder(
                             stream: menuBloc.isShowingCommunityResource,
                             builder: (context, AsyncSnapshot<bool> snapshot) {
-                              return AnimatedOpacity(
-                                opacity: snapshot.data ?? false ? 1 : 0,
-                                duration: snapshot.data ?? false
-                                    ? _opacityDuration
-                                    : _seeMoreDuration,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Column(
-                                      children: List.generate(
-                                        (communityResourceLeftList.length),
-                                        (index) => (ShortCutButton(
-                                          image: communityResourceLeftList
-                                              .elementAt(index).image,
-                                          label: communityResourceLeftList
-                                              .elementAt(index).label,
-                                        )),
+                              return SingleChildScrollView(
+                                padding: EdgeInsets.zero,
+                                physics: const NeverScrollableScrollPhysics(),
+                                child: AnimatedOpacity(
+                                  opacity: snapshot.data ?? false ? 1 : 0,
+                                  duration: _opacityDuration,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      SizedBox(
+                                        height: cRHeight,
+                                        child: Column(
+                                          children: List.generate(
+                                            (communityResourceLeftList.length),
+                                            (index) => (ShortCutButton(
+                                              image: communityResourceLeftList
+                                                  .elementAt(index)
+                                                  .image,
+                                              label: communityResourceLeftList
+                                                  .elementAt(index)
+                                                  .label,
+                                            )),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    Column(
-                                      children: List.generate(
-                                        (communityResourceRightList.length),
-                                        (index) => (ShortCutButton(
-                                          image: communityResourceRightList
-                                              .elementAt(index).image,
-                                          label: communityResourceRightList
-                                              .elementAt(index).label,
-                                        )),
+                                      SizedBox(
+                                        height: cRHeight,
+                                        child: Column(
+                                          children: List.generate(
+                                            (communityResourceRightList.length),
+                                            (index) => (ShortCutButton(
+                                              image: communityResourceRightList
+                                                  .elementAt(index)
+                                                  .image,
+                                              label: communityResourceRightList
+                                                  .elementAt(index)
+                                                  .label,
+                                            )),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               );
                             }),
@@ -447,32 +446,33 @@ class _MenuPageState extends State<MenuPage>
                       child: HiddenMenuButton(
                         label: '도움말 및 지원',
                         hiddenMenu: StreamBuilder(
-                            stream: menuBloc.isShowingHelp,
-                            builder: (context, AsyncSnapshot<bool> snapshot) {
-                              return AnimatedOpacity(
+                          stream: menuBloc.isShowingHelp,
+                          builder: (context, AsyncSnapshot<bool> snapshot) {
+                            return SingleChildScrollView(
+                              padding: EdgeInsets.zero,
+                              physics: const NeverScrollableScrollPhysics(),
+                              child: AnimatedOpacity(
                                 opacity: snapshot.data ?? false ? 1 : 0,
-                                duration: snapshot.data ?? false
-                                    ? _opacityDuration
-                                    : _seeMoreDuration,
+                                duration: _opacityDuration,
                                 child: Container(
                                   margin: EdgeInsets.only(
-                                    top: appHeight * 0.0125,
+                                    top: appHeight * 0.010,
                                     //bottom: appHeight * 0.01,
                                   ),
                                   child: Column(
                                     children: List.generate(
                                       helpList.length,
-                                      (index) => BigShortCutButton(
-                                        label:
-                                            helpList.elementAt(index).label,
-                                        image:
-                                            helpList.elementAt(index).image,
+                                          (index) => BigShortCutButton(
+                                        label: helpList.elementAt(index).label,
+                                        image: helpList.elementAt(index).image,
                                       ),
                                     ),
                                   ),
                                 ),
-                              );
-                            }),
+                              ),
+                            );
+                          },
+                        ),
                         hiddenMenuHeight: helpHeight,
                         onShowingEnd: () async {
                           menuBloc.updateIsShowingHelp(true);

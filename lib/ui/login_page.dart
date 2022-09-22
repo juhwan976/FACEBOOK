@@ -54,6 +54,13 @@ class _LoginPageState extends State<LoginPage> {
   dispose() {
     super.dispose();
 
+    _idController.removeListener(() {
+      loginBloc.updateId(_idController.text);
+    });
+    _pwController.removeListener(() {
+      loginBloc.updatePw(_pwController.text);
+    });
+
     _idController.dispose();
     _pwController.dispose();
     loginBloc.dispose();
