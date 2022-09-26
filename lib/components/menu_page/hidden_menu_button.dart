@@ -24,8 +24,12 @@ class HiddenMenuButton extends StatefulWidget {
 }
 
 class _HiddenMenuButtonState extends State<HiddenMenuButton> {
-  final BehaviorSubject<double> _turnsSubject = BehaviorSubject<double>();
-  final Duration _turningDuration = Duration(milliseconds: 150);
+  final _turnsSubject = BehaviorSubject<double>();
+  final _turningDuration = const Duration(milliseconds: 150);
+  final _animationDuration = const Duration(milliseconds: 300);
+
+  final _dividerColor = const Color.fromRGBO(206, 206, 206, 1);
+  final _iconColor = const Color.fromRGBO(180, 200, 210, 1);
 
   bool _isShowing = false;
 
@@ -53,9 +57,9 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Container(
-          color: Color.fromRGBO(206, 206, 206, 1),
+          color: _dividerColor,
           width: double.infinity,
-          child: SizedBox(height: 1),
+          child: const SizedBox(height: 1),
         ),
         Container(
           height: appHeight * 0.071,
@@ -77,7 +81,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                         children: [
                           Image.asset(
                             'assets/menuPage/hidden_menu_icon_4.png',
-                            color: Color.fromRGBO(180, 200, 210, 1),
+                            color: _iconColor,
                             height: appHeight * 0.045,
                           ),
                           SizedBox(
@@ -128,7 +132,7 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
           stream: _turnsSubject.stream,
           builder: (context, AsyncSnapshot<double> snapshot) {
             return AnimatedContainer(
-              duration: _turningDuration,
+              duration: _animationDuration,
               height: ((snapshot.data ?? 1 / 2) == 1 / 2)
                   ? widget.hiddenMenuHeight
                   : 0,

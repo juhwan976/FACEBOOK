@@ -13,7 +13,7 @@ class AlarmBloc {
   bool _isLoading = false;
   int _readMoreCount = 3;
   int _count = 0;
-  List<bool> temp = [];
+  List<bool> _temp = [];
 
   Stream<double> get scrollOffset => _scrollOffset.stream;
   Stream<int> get alarmLength => _alarmLength.stream;
@@ -28,6 +28,20 @@ class AlarmBloc {
   int get readMoreCount => _readMoreCount;
   int get count => _count;
 
+  List<bool> get temp => _temp;
+
+  void setTemp(List<bool> list) {
+    _temp = [...list];
+  }
+
+  void setTempElementAt(int index, bool value) {
+    _temp[index] = value;
+  }
+
+  void clearTemp() {
+    _temp = [];
+  }
+
   List<bool> parseIsReadsToList(List<bool> temp) {
 
     for(int i = 0 ; i < alarms.length ; i++) {
@@ -38,7 +52,7 @@ class AlarmBloc {
   }
 
   Future refresh() async {
-    await Future.delayed(const Duration(seconds: 1)).whenComplete(() {
+    await Future.delayed(const Duration(seconds: 2)).whenComplete(() {
       log('refresh done!');
     });
   }
@@ -47,7 +61,7 @@ class AlarmBloc {
     if (!_isLoading) {
       _isLoading = true;
       updateIsEnd(false);
-      await Future.delayed(const Duration(seconds: 1)).whenComplete(
+      await Future.delayed(const Duration(seconds: 2)).whenComplete(
         () {
           log('loading done!');
           if (_readMoreCount-- > 0) {
@@ -63,9 +77,10 @@ class AlarmBloc {
                   isRead: false,
                 ),
               );
-              temp = [];
-              temp = [...parseIsReadsToList(temp)];
-              updateIsReads(temp);
+
+              clearTemp();
+              setTemp(parseIsReadsToList(_temp));
+              updateIsReads(_temp);
             }
           } else {
             updateIsEnd(true);
@@ -80,11 +95,17 @@ class AlarmBloc {
   void init() {
     updateAlarmLength(alarms.length);
     updateIsEnd(false);
+
+    clearTemp();
+    setTemp(parseIsReadsToList(_temp));
+    updateIsReads(_temp);
   }
 
   void dispose() {
     _scrollOffset.close();
     _alarmLength.close();
+    _isEnd.close();
     _isReads.close();
+    _temp.clear();
   }
 }

@@ -1,9 +1,6 @@
 // ignore_for_file: file_names
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 
 import '../bloc/alarm_bloc.dart';
@@ -31,11 +28,7 @@ class AlarmPage extends StatefulWidget {
 
 class _AlarmPageState extends State<AlarmPage>
     with AutomaticKeepAliveClientMixin<AlarmPage> {
-  /*
-  final _scrollSubject = BehaviorSubject<double>();
-  final _alarmsLengthSubject = BehaviorSubject<int>();
-   */
-  final _storage = LocalStorage('alarm_page');
+  //final _storage = LocalStorage('alarm_page');
 
   final double appBarHeight = const SliverAppBar().toolbarHeight;
   final double appBarShadowHeight = 1.0;
@@ -50,7 +43,6 @@ class _AlarmPageState extends State<AlarmPage>
   final inActiveFontColor = const Color.fromRGBO(8, 8, 8, 1);
 
   final alarmBloc = AlarmBloc();
-  List<bool> temp = [];
 
   int index = 0;
 
@@ -74,9 +66,6 @@ class _AlarmPageState extends State<AlarmPage>
     widget.scrollController.addListener(listener);
 
     alarmBloc.init();
-
-    temp = [...alarmBloc.parseIsReadsToList(temp)];
-    alarmBloc.updateIsReads(temp);
   }
 
   @override
@@ -85,7 +74,6 @@ class _AlarmPageState extends State<AlarmPage>
 
     widget.scrollController.removeListener(listener);
 
-    temp.clear();
     alarmBloc.dispose();
   }
 
@@ -242,8 +230,9 @@ class _AlarmPageState extends State<AlarmPage>
                                           AsyncSnapshot<List<bool>>
                                               isReadSnapshot) {
                                         if (isReadSnapshot.hasData) {
-                                          temp = [];
-                                          temp = [...isReadSnapshot.data!];
+                                          alarmBloc.clearTemp();
+                                          alarmBloc
+                                              .setTemp(isReadSnapshot.data!);
 
                                           return Column(
                                             children: List.generate(
@@ -254,11 +243,17 @@ class _AlarmPageState extends State<AlarmPage>
                                                   return AlarmTile(
                                                     alarmData:
                                                         alarms.elementAt(index),
-                                                    isRead: temp[index],
+                                                    isRead:
+                                                        alarmBloc.temp[index],
                                                     onPressed: () {
-                                                      temp[index] = true;
-                                                      alarmBloc.updateIsReads(temp);
-                                                      alarms.elementAt(index).isRead = true;
+                                                      alarmBloc
+                                                          .setTempElementAt(
+                                                              index, true);
+                                                      alarmBloc.updateIsReads(
+                                                          alarmBloc.temp);
+                                                      alarms
+                                                          .elementAt(index)
+                                                          .isRead = true;
                                                     },
                                                   );
                                                 } else {
@@ -276,37 +271,40 @@ class _AlarmPageState extends State<AlarmPage>
                                       },
                                     );
                                   } else {
-                                    return const CupertinoActivityIndicator();
-                                      /*StreamBuilder(
-                                        stream: alarmBloc.isReads,
-                                        builder: (context,
-                                            AsyncSnapshot<List<bool>>
-                                                snapshot) {
-                                          if (snapshot.hasData) {
-                                            temp = [...snapshot.data!];
+                                    return StreamBuilder(
+                                      stream: alarmBloc.isReads,
+                                      builder: (context,
+                                          AsyncSnapshot<List<bool>> snapshot) {
+                                        if (snapshot.hasData) {
+                                          alarmBloc.clearTemp();
+                                          alarmBloc.setTemp(snapshot.data!);
 
-                                            return Column(
-                                              children: List.generate(
-                                                lengthSnapshot.data!,
-                                                (index) {
-                                                  return AlarmTile(
-                                                    alarmData:
-                                                        alarms.elementAt(index),
-                                                    isRead: snapshot.data!
-                                                        .elementAt(index),
-                                                    onPressed: () {
-                                                      temp[index] = true;
-                                                      alarmBloc
-                                                          .updateIsReads(temp);
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          }
+                                          return Column(
+                                            children: List.generate(
+                                              lengthSnapshot.data!,
+                                              (index) {
+                                                return AlarmTile(
+                                                  alarmData:
+                                                      alarms.elementAt(index),
+                                                  isRead: alarmBloc.temp[index],
+                                                  onPressed: () {
+                                                    alarmBloc.setTempElementAt(
+                                                        index, true);
+                                                    alarmBloc.updateIsReads(
+                                                        alarmBloc.temp);
+                                                    alarms
+                                                        .elementAt(index)
+                                                        .isRead = true;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        }
 
-                                          return const CupertinoActivityIndicator();
-                                        })*/;
+                                        return const CupertinoActivityIndicator();
+                                      },
+                                    );
                                   }
                                 }
 

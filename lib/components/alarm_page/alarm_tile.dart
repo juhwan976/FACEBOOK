@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 
 import '../../models/alarm_data.dart';
 import '../../models/global_model.dart';
+import 'alarm_tile_bottom_sheet.dart';
+import 'alarm_tile_profile.dart';
 
 class AlarmTile extends StatelessWidget {
-  const AlarmTile({
+  AlarmTile({
     Key? key,
     required this.alarmData,
     required this.isRead,
@@ -93,18 +95,8 @@ class AlarmTile extends StatelessWidget {
                     margin: EdgeInsets.only(
                       left: appWidth * 0.04,
                     ),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    height: appHeight * 0.088,
-                    child: Opacity(
-                      opacity: 0.2,
-                      child: Icon(
-                        Icons.account_circle,
-                        size: appHeight * 0.088,
-                        color: Colors.grey,
-                      ),
+                    child: AlarmTileProfile(
+                      uid: alarmData.uid,
                     ),
                   ),
                 ],
@@ -144,7 +136,7 @@ class AlarmTile extends StatelessWidget {
                             text: _writeWhatPosted(),
                           ),
                           TextSpan(
-                            text: '\'${alarmData.content}\'',
+                            text: '\'${alarmData.content}\'.',
                           ),
                         ],
                       ),
@@ -178,8 +170,8 @@ class AlarmTile extends StatelessWidget {
                     ),
                   ),
                   builder: (context) {
-                    return SizedBox(
-                      height: appHeight * 0.47,
+                    return AlarmTileBottomSheet(
+                      alarmData: alarmData,
                     );
                   },
                 );
