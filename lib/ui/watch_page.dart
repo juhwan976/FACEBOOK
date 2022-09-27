@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
 class WatchPage extends StatefulWidget {
   const WatchPage({Key? key}) : super(key: key);
@@ -11,7 +10,6 @@ class WatchPage extends StatefulWidget {
 }
 
 class _WatchPageState extends State<WatchPage> {
-
   @override
   initState() {
     super.initState();
@@ -25,8 +23,14 @@ class _WatchPageState extends State<WatchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
-        child: Text('WatchPage'),
+        child: Text(
+          'WatchPage',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
       ),
     );
   }

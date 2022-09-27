@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -47,12 +46,6 @@ class _MenuPageState extends State<MenuPage>
   final double cRHeight = appHeight * 0.31;
   final double helpHeight = appHeight * 0.46;
 
-  bool _isShowingShortCut = false;
-  bool _isShowingCommunityResource = false;
-  bool _isShowingHelp = false;
-  bool _isShowingSetting = false;
-  bool _isShowingAnotherProduct = false;
-
   final Duration _seeMoreDuration = const Duration(milliseconds: 200);
   final Duration _opacityDuration = const Duration(milliseconds: 200);
   final Duration _scrollDuration = const Duration(milliseconds: 250);
@@ -60,36 +53,8 @@ class _MenuPageState extends State<MenuPage>
 
   final menuBloc = MenuBloc();
 
-  double _calCRScrollOffset() {
-    if (_isShowingShortCut && _isShowingHelp) {
-      return 667;
-    }
-
-    if (_isShowingShortCut) {
-      return 562;
-    }
-
-    if (_isShowingHelp) {
-      return 500;
-    }
-
-    return 397;
-  }
-
-  double _calHelpScrollOffset() {
-    if (_isShowingShortCut && _isShowingCommunityResource) {
-      return 915;
-    }
-
-    if (_isShowingShortCut) {
-      return 677;
-    }
-
-    if (_isShowingCommunityResource) {
-      return 750;
-    }
-
-    return 512;
+  void _listener() {
+    menuBloc.updateScrollOffset(widget.scrollController.offset);
   }
 
   @override
@@ -100,7 +65,7 @@ class _MenuPageState extends State<MenuPage>
     super.initState();
 
     widget.scrollController.addListener(() {
-      menuBloc.updateScrollOffset(widget.scrollController.offset);
+      _listener();
     });
 
     menuBloc.init();
@@ -111,7 +76,7 @@ class _MenuPageState extends State<MenuPage>
     super.dispose();
 
     widget.scrollController.removeListener(() {
-      menuBloc.updateScrollOffset(widget.scrollController.offset);
+      _listener();
     });
 
     menuBloc.dispose();
@@ -127,7 +92,7 @@ class _MenuPageState extends State<MenuPage>
           return;
         }
 
-        if(widget.scrollController.hasClients) {
+        if (widget.scrollController.hasClients) {
           widget.scrollController.animateTo(
             event.to,
             duration: event.duration,
@@ -252,7 +217,12 @@ class _MenuPageState extends State<MenuPage>
                                           ),
                                         );
                                       } else {
-                                        return const Text('null');
+                                        return const Text(
+                                          'loading...',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                        );
                                       }
                                     },
                                   ),
@@ -360,12 +330,12 @@ class _MenuPageState extends State<MenuPage>
                           return JustButton(
                             label: snapshot.data ?? false ? '간단히 보기' : '더 보기',
                             onPress: () async {
-                              if (_isShowingShortCut) {
+                              if (snapshot.data!) {
                                 menuBloc.updateIsShowingShortCut(false);
                               } else {
                                 menuBloc.updateIsShowingShortCut(true);
                               }
-                              _isShowingShortCut = !_isShowingShortCut;
+                              //_isShowingShortCut = !_isShowingShortCut;
                             },
                           );
                         },
@@ -426,11 +396,10 @@ class _MenuPageState extends State<MenuPage>
                         hiddenMenuHeight: cRHeight,
                         onShowingEnd: () async {
                           menuBloc.updateIsShowingCommunityResource(true);
-                          _isShowingCommunityResource = true;
 
                           await Future.delayed(_showingHiddenMenuDuration).then(
                             (_) => (widget.scrollController.animateTo(
-                              _calCRScrollOffset(),
+                              menuBloc.calCRScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
                             )),
@@ -438,7 +407,6 @@ class _MenuPageState extends State<MenuPage>
                         },
                         onNShowingEnd: () {
                           menuBloc.updateIsShowingCommunityResource(false);
-                          _isShowingCommunityResource = false;
                         },
                       ),
                     ),
@@ -462,7 +430,7 @@ class _MenuPageState extends State<MenuPage>
                                   child: Column(
                                     children: List.generate(
                                       helpList.length,
-                                          (index) => BigShortCutButton(
+                                      (index) => BigShortCutButton(
                                         label: helpList.elementAt(index).label,
                                         image: helpList.elementAt(index).image,
                                       ),
@@ -476,10 +444,10 @@ class _MenuPageState extends State<MenuPage>
                         hiddenMenuHeight: helpHeight,
                         onShowingEnd: () async {
                           menuBloc.updateIsShowingHelp(true);
-                          _isShowingHelp = true;
+
                           await Future.delayed(_showingHiddenMenuDuration).then(
                             (_) => (widget.scrollController.animateTo(
-                              _calHelpScrollOffset(),
+                              menuBloc.calHelpScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
                             )),
@@ -487,7 +455,6 @@ class _MenuPageState extends State<MenuPage>
                         },
                         onNShowingEnd: () {
                           menuBloc.updateIsShowingHelp(false);
-                          _isShowingHelp = false;
                         },
                       ),
                     ),

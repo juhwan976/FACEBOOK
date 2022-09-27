@@ -31,6 +31,8 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
   final _dividerColor = const Color.fromRGBO(206, 206, 206, 1);
   final _iconColor = const Color.fromRGBO(180, 200, 210, 1);
 
+  final String _iconImage = 'assets/menuPage/hidden_menu_icon_4.png';
+
   bool _isShowing = false;
 
   @override
@@ -74,13 +76,52 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
             child: StreamBuilder(
                 stream: _turnsSubject.stream,
                 builder: (context, AsyncSnapshot<double> snapshot) {
+                  if(snapshot.hasData) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Image.asset(
+                              _iconImage,
+                              color: _iconColor,
+                              height: appHeight * 0.045,
+                            ),
+                            SizedBox(
+                              width: appHeight * 0.02,
+                            ),
+                            Text(
+                              widget.label,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                                fontWeight: ((snapshot.data!) == 0)
+                                    ? FontWeight.w500
+                                    : FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        AnimatedRotation(
+                          duration: _turningDuration,
+                          turns: snapshot.data!,
+                          child: Image.asset(
+                            'assets/menuPage/arrow_down.png',
+                            height: 20,
+                          ),
+                          onEnd: () {},
+                        ),
+                      ],
+                    );
+                  }
+
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Row(
                         children: [
                           Image.asset(
-                            'assets/menuPage/hidden_menu_icon_4.png',
+                            _iconImage,
                             color: _iconColor,
                             height: appHeight * 0.045,
                           ),
@@ -89,19 +130,17 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
                           ),
                           Text(
                             widget.label,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.black,
                               fontSize: 20,
-                              fontWeight: ((snapshot.data ?? 0) == 0)
-                                  ? FontWeight.w500
-                                  : FontWeight.bold,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                       AnimatedRotation(
-                        duration: _turningDuration,
-                        turns: snapshot.data ?? 1 / 2,
+                        duration: const Duration(seconds: 0),
+                        turns: 0,
                         child: Image.asset(
                           'assets/menuPage/arrow_down.png',
                           height: 20,
@@ -131,13 +170,17 @@ class _HiddenMenuButtonState extends State<HiddenMenuButton> {
         StreamBuilder(
           stream: _turnsSubject.stream,
           builder: (context, AsyncSnapshot<double> snapshot) {
-            return AnimatedContainer(
-              duration: _animationDuration,
-              height: ((snapshot.data ?? 1 / 2) == 1 / 2)
-                  ? widget.hiddenMenuHeight
-                  : 0,
-              child: widget.hiddenMenu,
-            );
+            if(snapshot.hasData) {
+              return AnimatedContainer(
+                duration: _animationDuration,
+                height: ((snapshot.data!) == 1 / 2)
+                    ? widget.hiddenMenuHeight
+                    : 0,
+                child: widget.hiddenMenu,
+              );
+            }
+
+            return const SizedBox.shrink();
           },
         ),
       ],

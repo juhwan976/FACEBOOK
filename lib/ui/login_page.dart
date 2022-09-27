@@ -43,11 +43,6 @@ class _LoginPageState extends State<LoginPage> {
     _pwController.addListener(() {
       loginBloc.updatePw(_pwController.text);
     });
-
-    loginBloc.updateLoginButton(false);
-    loginBloc.setMaxAppBarHeight = appHeight * 0.24;
-    loginBloc.setMinAppBarHeight = appHeight * 0.12;
-    loginBloc.setAppBarHeightMax();
   }
 
   @override
@@ -79,24 +74,37 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             StreamBuilder<double>(
               stream: loginBloc.appBarHeight,
-              builder: (context, snapshot) {
-                return AnimatedContainer(
-                  duration: animationDuration,
-                  height:
-                      MediaQuery.of(context).padding.top + (snapshot.data ?? 0),
+              builder: (context, AsyncSnapshot<double> snapshot) {
+                if(snapshot.hasData) {
+                  return AnimatedContainer(
+                    duration: animationDuration,
+                    height:
+                    paddingTop + snapshot.data!,
+                    color: Colors.blue,
+                  );
+                }
+
+                return Container(
+                  height: paddingTop + loginBloc.maxAppBarHeight,
                   color: Colors.blue,
                 );
               },
             ),
             StreamBuilder(
                 stream: loginBloc.appBarHeight,
-                builder: (context, snapshot) {
-                  return AnimatedContainer(
-                    height: (snapshot.data == appHeight * 0.24)
-                        ? appHeight * 0.055
-                        : appHeight * 0.026,
-                    duration: animationDuration,
-                    child: const SizedBox.shrink(),
+                builder: (context, AsyncSnapshot<double> snapshot) {
+                  if(snapshot.hasData) {
+                    return AnimatedContainer(
+                      height: (snapshot.data! == loginBloc.maxAppBarHeight)
+                          ? appHeight * 0.055
+                          : appHeight * 0.026,
+                      duration: animationDuration,
+                      child: const SizedBox.shrink(),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: appHeight * 0.055,
                   );
                 }),
             Container(
@@ -265,18 +273,6 @@ class _LoginPageState extends State<LoginPage> {
             const Expanded(
               child: SizedBox.shrink(),
             ),
-            /*(
-            StreamBuilder(
-                stream: loginBloc.appBarHeight,
-                builder: (context, snapshot) {
-                  return AnimatedContainer(
-                    height: (snapshot.data == appHeight * 0.24)
-                        ? appHeight * 0.276
-                        : appHeight * 0.076,
-                    duration: animationDuration,
-                    child: const SizedBox.shrink(),
-                  );
-                }),)*/
             SizedBox(
               height: appHeight * 0.07,
               child: Row(

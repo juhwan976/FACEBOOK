@@ -9,7 +9,7 @@ import '../bloc/main_bloc.dart';
 import '../models/global_model.dart';
 import '../models/main_data.dart';
 import 'alarm_page.dart';
-import 'friend_page.dart';
+import 'feed_page.dart';
 import 'home_page.dart';
 import 'menu_page.dart';
 
@@ -43,6 +43,7 @@ class _MainPageState extends State<MainPage> {
 
   int currentIndex = 0;
   final int _duration = 80;
+  final double _indicatorHeight = 2;
   final Color _activeColor = const Color.fromRGBO(18, 119, 238, 1);
   final Color _inactiveColor = const Color.fromRGBO(100, 100, 100, 1);
 
@@ -98,7 +99,7 @@ class _MainPageState extends State<MainPage> {
                           children: <Widget>[
                             Container(
                               width: appWidth / navigationData.length,
-                              height: 3,
+                              height: _indicatorHeight,
                               padding: EdgeInsets.zero,
                               child: Row(
                                 children: <Widget>[
@@ -198,7 +199,6 @@ class _MainPageState extends State<MainPage> {
                                             ? _activeColor
                                             : _inactiveColor,
                                         fontSize: 11,
-                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ],
@@ -241,7 +241,7 @@ class _MainPageState extends State<MainPage> {
               scrollController: _profilePageScrollController,
               isOnScreen: currentIndex == 2,
             ),
-            FriendPage(),
+            FeedPage(),
             AlarmPage(
               scrollController: _alarmPageScrollController,
               isOnScreen: currentIndex == 4,

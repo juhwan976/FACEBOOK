@@ -1,16 +1,17 @@
 import 'package:rxdart/rxdart.dart';
+import '../models/global_model.dart';
 
 class LoginBloc {
   final _id = BehaviorSubject<String>();
   final _pw = BehaviorSubject<String>();
 
-  final _appBarHeight = BehaviorSubject<double>();
-  late double _minAppBarHeight = 0;
-  late double _maxAppBarHeight = 0;
+  final _appBarHeight = BehaviorSubject<double>.seeded(appHeight * 0.24);
+  late double _minAppBarHeight = appHeight * 0.12;
+  late double _maxAppBarHeight = appHeight * 0.24;
 
   final _idButton = BehaviorSubject<bool>();
   final _pwButton = BehaviorSubject<bool>();
-  final _loginButton = BehaviorSubject<bool>();
+  final _loginButton = BehaviorSubject<bool>.seeded(false);
   final _indicator = BehaviorSubject<bool>();
 
   Stream<String> get id => _id.stream;
@@ -22,6 +23,8 @@ class LoginBloc {
   Function(double) get changeAppBarHeight => _appBarHeight.sink.add;
   set setMinAppBarHeight(double height) => _minAppBarHeight = height;
   set setMaxAppBarHeight(double height) => _maxAppBarHeight = height;
+  double get maxAppBarHeight => _maxAppBarHeight;
+  double get minAppBarHeight => _minAppBarHeight;
 
   Stream<bool> get idButton => _idButton.stream;
   Stream<bool> get pwButton => _pwButton.stream;
