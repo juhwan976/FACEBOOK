@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 
 class WatchPage extends StatefulWidget {
-  const WatchPage({Key? key}) : super(key: key);
+  const WatchPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<WatchPage> createState() => _WatchPageState();
@@ -25,11 +27,16 @@ class _WatchPageState extends State<WatchPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Text(
-          'WatchPage',
-          style: TextStyle(
-            color: Colors.black,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'WatchPage',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            )
+          ],
         ),
       ),
     );

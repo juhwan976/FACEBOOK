@@ -1,4 +1,3 @@
-// ignore_for_file: file_names
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
@@ -17,10 +16,12 @@ class AlarmPage extends StatefulWidget {
     Key? key,
     required this.scrollController,
     required this.isOnScreen,
+    required this.pageTransition,
   }) : super(key: key);
 
   final ScrollController scrollController;
   final bool isOnScreen;
+  final Function pageTransition;
 
   @override
   State<AlarmPage> createState() => _AlarmPageState();
@@ -42,20 +43,20 @@ class _AlarmPageState extends State<AlarmPage>
   final inActiveColor = const Color.fromRGBO(227, 228, 234, 1);
   final inActiveFontColor = const Color.fromRGBO(8, 8, 8, 1);
 
-  final alarmBloc = AlarmBloc();
+  final _alarmBloc = AlarmBloc();
 
-  int index = 0;
+  int _index = 0;
 
   @override
   bool get wantKeepAlive => true;
 
   void listener() {
-    alarmBloc.updateScrollOffset(widget.scrollController.offset);
+    _alarmBloc.updateScrollOffset(widget.scrollController.offset);
     if (((widget.scrollController.position.maxScrollExtent -
                 loadingTileHeight * 2) <
             widget.scrollController.offset) &&
         alarms.length >= 6) {
-      alarmBloc.readMore();
+      _alarmBloc.readMore();
     }
   }
 
@@ -65,7 +66,7 @@ class _AlarmPageState extends State<AlarmPage>
 
     widget.scrollController.addListener(listener);
 
-    alarmBloc.init();
+    _alarmBloc.init();
   }
 
   @override
@@ -74,7 +75,7 @@ class _AlarmPageState extends State<AlarmPage>
 
     widget.scrollController.removeListener(listener);
 
-    alarmBloc.dispose();
+    _alarmBloc.dispose();
   }
 
   @override
@@ -101,7 +102,7 @@ class _AlarmPageState extends State<AlarmPage>
           child: Column(
             children: [
               CustomSliverAppBarShadow(
-                scrollOffsetStream: alarmBloc.scrollOffset,
+                scrollOffsetStream: _alarmBloc.scrollOffset,
               ),
               Expanded(
                 child: CustomScrollView(
@@ -119,7 +120,7 @@ class _AlarmPageState extends State<AlarmPage>
                     CupertinoSliverRefreshControl(
                       refreshTriggerPullDistance: appHeight * 0.1,
                       onRefresh: () async {
-                        alarmBloc.refresh();
+                        _alarmBloc.refresh();
                       },
                     ),
                     SliverToBoxAdapter(
@@ -139,7 +140,7 @@ class _AlarmPageState extends State<AlarmPage>
                               ),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: (index == 0)
+                                  primary: (_index == 0)
                                       ? activeColor
                                       : inActiveColor,
                                   padding: EdgeInsets.zero,
@@ -152,14 +153,14 @@ class _AlarmPageState extends State<AlarmPage>
                                   '모두',
                                   style: TextStyle(
                                     fontSize: 17.5,
-                                    color: (index == 0)
+                                    color: (_index == 0)
                                         ? activeFontColor
                                         : inActiveFontColor,
                                   ),
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    index = 0;
+                                    _index = 0;
                                   });
                                 },
                               ),
@@ -169,7 +170,7 @@ class _AlarmPageState extends State<AlarmPage>
                               width: appWidth * 0.20,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  primary: (index == 1)
+                                  primary: (_index == 1)
                                       ? activeColor
                                       : inActiveColor,
                                   padding: EdgeInsets.zero,
@@ -182,14 +183,14 @@ class _AlarmPageState extends State<AlarmPage>
                                   '우선순위',
                                   style: TextStyle(
                                     fontSize: 17.5,
-                                    color: (index == 1)
+                                    color: (_index == 1)
                                         ? activeFontColor
                                         : inActiveFontColor,
                                   ),
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    index = 1;
+                                    _index = 1;
                                   });
                                 },
                               ),
@@ -200,7 +201,7 @@ class _AlarmPageState extends State<AlarmPage>
                     ),
                     SliverToBoxAdapter(
                       child: Visibility(
-                        visible: (index == 0) ? true : false,
+                        visible: (_index == 0) ? true : false,
                         child: Column(
                           children: <Widget>[
                             Container(
@@ -219,19 +220,19 @@ class _AlarmPageState extends State<AlarmPage>
                               ),
                             ),
                             StreamBuilder(
-                              stream: alarmBloc.alarmLength,
+                              stream: _alarmBloc.alarmLength,
                               builder:
                                   (context, AsyncSnapshot<int> lengthSnapshot) {
                                 if (lengthSnapshot.hasData) {
                                   if (lengthSnapshot.data! >= 6) {
                                     return StreamBuilder(
-                                      stream: alarmBloc.isReads,
+                                      stream: _alarmBloc.isReads,
                                       builder: (context,
                                           AsyncSnapshot<List<bool>>
                                               isReadSnapshot) {
                                         if (isReadSnapshot.hasData) {
-                                          alarmBloc.clearTemp();
-                                          alarmBloc
+                                          _alarmBloc.clearTemp();
+                                          _alarmBloc
                                               .setTemp(isReadSnapshot.data!);
 
                                           return Column(
@@ -244,22 +245,28 @@ class _AlarmPageState extends State<AlarmPage>
                                                     alarmData:
                                                         alarms.elementAt(index),
                                                     isRead:
-                                                        alarmBloc.temp[index],
+                                                        _alarmBloc.temp[index],
                                                     onPressed: () {
-                                                      alarmBloc
+                                                      _alarmBloc
                                                           .setTempElementAt(
                                                               index, true);
-                                                      alarmBloc.updateIsReads(
-                                                          alarmBloc.temp);
+                                                      _alarmBloc.updateIsReads(
+                                                          _alarmBloc.temp);
                                                       alarms
                                                           .elementAt(index)
                                                           .isRead = true;
+
+                                                      widget.pageTransition(
+                                                        1,
+                                                        alarmToWatch: true,
+                                                        data: alarms.elementAt(index),
+                                                      );
                                                     },
                                                   );
                                                 } else {
                                                   return LoadingTile(
                                                     isEndStream:
-                                                        alarmBloc.isEnd,
+                                                        _alarmBloc.isEnd,
                                                   );
                                                 }
                                               },
@@ -272,12 +279,12 @@ class _AlarmPageState extends State<AlarmPage>
                                     );
                                   } else {
                                     return StreamBuilder(
-                                      stream: alarmBloc.isReads,
+                                      stream: _alarmBloc.isReads,
                                       builder: (context,
                                           AsyncSnapshot<List<bool>> snapshot) {
                                         if (snapshot.hasData) {
-                                          alarmBloc.clearTemp();
-                                          alarmBloc.setTemp(snapshot.data!);
+                                          _alarmBloc.clearTemp();
+                                          _alarmBloc.setTemp(snapshot.data!);
 
                                           return Column(
                                             children: List.generate(
@@ -286,12 +293,13 @@ class _AlarmPageState extends State<AlarmPage>
                                                 return AlarmTile(
                                                   alarmData:
                                                       alarms.elementAt(index),
-                                                  isRead: alarmBloc.temp[index],
+                                                  isRead:
+                                                      _alarmBloc.temp[index],
                                                   onPressed: () {
-                                                    alarmBloc.setTempElementAt(
+                                                    _alarmBloc.setTempElementAt(
                                                         index, true);
-                                                    alarmBloc.updateIsReads(
-                                                        alarmBloc.temp);
+                                                    _alarmBloc.updateIsReads(
+                                                        _alarmBloc.temp);
                                                     alarms
                                                         .elementAt(index)
                                                         .isRead = true;
@@ -317,7 +325,7 @@ class _AlarmPageState extends State<AlarmPage>
                     ),
                     SliverToBoxAdapter(
                       child: Visibility(
-                        visible: (index == 1) ? true : false,
+                        visible: (_index == 1) ? true : false,
                         child: SizedBox(
                           height: appHeight -
                               navigationBarHeight -

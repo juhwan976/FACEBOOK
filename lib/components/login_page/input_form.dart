@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:facebook/bloc/login_bloc.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/global_model.dart';
+
 class InputForm extends StatelessWidget {
   const InputForm({
     Key? key,
@@ -45,9 +47,6 @@ class InputForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    final double appWidth = MediaQuery.of(context).size.width;
 
     return Container(
       width: appWidth * 0.9,
@@ -113,4 +112,4 @@ class InputForm extends StatelessWidget {
   }
 }
 
-enum InputType { id, pw }
+enum InputType { id, pw, name }

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../bloc/login_bloc.dart';
 import '../components/login_page/input_form.dart';
 import '../models/global_model.dart';
+import 'new_account_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -20,8 +21,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool init = false;
-
   final Color borderColor = Colors.white;
 
   final Duration animationDuration = const Duration(milliseconds: 250);
@@ -31,17 +30,17 @@ class _LoginPageState extends State<LoginPage> {
 
   final FocusNode _textFocusNode = FocusNode();
 
-  final loginBloc = LoginBloc();
+  final _loginBloc = LoginBloc();
 
   @override
   initState() {
     super.initState();
 
     _idController.addListener(() {
-      loginBloc.updateId(_idController.text);
+      _loginBloc.updateId(_idController.text);
     });
     _pwController.addListener(() {
-      loginBloc.updatePw(_pwController.text);
+      _loginBloc.updatePw(_pwController.text);
     });
   }
 
@@ -50,52 +49,50 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
 
     _idController.removeListener(() {
-      loginBloc.updateId(_idController.text);
+      _loginBloc.updateId(_idController.text);
     });
     _pwController.removeListener(() {
-      loginBloc.updatePw(_pwController.text);
+      _loginBloc.updatePw(_pwController.text);
     });
 
     _idController.dispose();
     _pwController.dispose();
-    loginBloc.dispose();
+    _loginBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
-        loginBloc.onUnfocus();
+        _loginBloc.onUnfocus();
       },
       child: Scaffold(
         body: Column(
           children: <Widget>[
             StreamBuilder<double>(
-              stream: loginBloc.appBarHeight,
+              stream: _loginBloc.appBarHeight,
               builder: (context, AsyncSnapshot<double> snapshot) {
-                if(snapshot.hasData) {
+                if (snapshot.hasData) {
                   return AnimatedContainer(
                     duration: animationDuration,
-                    height:
-                    paddingTop + snapshot.data!,
+                    height: paddingTop + snapshot.data!,
                     color: Colors.blue,
                   );
                 }
 
                 return Container(
-                  height: paddingTop + loginBloc.maxAppBarHeight,
+                  height: paddingTop + _loginBloc.maxAppBarHeight,
                   color: Colors.blue,
                 );
               },
             ),
             StreamBuilder(
-                stream: loginBloc.appBarHeight,
+                stream: _loginBloc.appBarHeight,
                 builder: (context, AsyncSnapshot<double> snapshot) {
-                  if(snapshot.hasData) {
+                  if (snapshot.hasData) {
                     return AnimatedContainer(
-                      height: (snapshot.data! == loginBloc.maxAppBarHeight)
+                      height: (snapshot.data! == _loginBloc.maxAppBarHeight)
                           ? appHeight * 0.055
                           : appHeight * 0.026,
                       duration: animationDuration,
@@ -119,22 +116,22 @@ class _LoginPageState extends State<LoginPage> {
                   InputForm(
                     controller: _idController,
                     inputType: InputType.id,
-                    buttonStream: loginBloc.idButton,
+                    buttonStream: _loginBloc.idButton,
                     focusNode: _textFocusNode,
                     height: appHeight * 0.0555,
                     visibleBorder: false,
                     existNext: true,
                     hint: '전화번호 또는 이메일',
                     onTap: () {
-                      loginBloc.setAppBarHeightMin();
-                      loginBloc.toggleIdButton();
+                      _loginBloc.setAppBarHeightMin();
+                      _loginBloc.toggleIdButton();
                     },
                     onSubmitted: () {
-                      loginBloc.updateIdButton(false);
+                      _loginBloc.updateIdButton(false);
                     },
                     onChanged: () {
-                      loginBloc.toggleIdButton();
-                      loginBloc.toggleLoginButton();
+                      _loginBloc.toggleIdButton();
+                      _loginBloc.toggleLoginButton();
                     },
                   ),
                   Container(
@@ -144,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                   InputForm(
                     controller: _pwController,
                     inputType: InputType.pw,
-                    buttonStream: loginBloc.pwButton,
+                    buttonStream: _loginBloc.pwButton,
                     focusNode: _textFocusNode,
                     height: appHeight * 0.0555,
                     visibleBorder: false,
@@ -152,16 +149,16 @@ class _LoginPageState extends State<LoginPage> {
                     existNext: false,
                     hint: '비밀번호',
                     onTap: () {
-                      loginBloc.setAppBarHeightMin();
-                      loginBloc.togglePwButton();
+                      _loginBloc.setAppBarHeightMin();
+                      _loginBloc.togglePwButton();
                     },
                     onSubmitted: () {
-                      loginBloc.setAppBarHeightMax();
-                      loginBloc.updatePwButton(false);
+                      _loginBloc.setAppBarHeightMax();
+                      _loginBloc.updatePwButton(false);
                     },
                     onChanged: () {
-                      loginBloc.toggleLoginButton();
-                      loginBloc.togglePwButton();
+                      _loginBloc.toggleLoginButton();
+                      _loginBloc.togglePwButton();
                     },
                   ),
                 ],
@@ -176,14 +173,14 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.blue,
               ),
               child: StreamBuilder(
-                stream: loginBloc.loginButton,
+                stream: _loginBloc.loginButton,
                 builder: (context, snapshot) {
                   return MaterialButton(
                     onPressed: snapshot.data == true
                         ? () async {
                             FocusScope.of(context).unfocus();
-                            loginBloc.setAppBarHeightMax();
-                            loginBloc.updateIndicator(true);
+                            _loginBloc.setAppBarHeightMax();
+                            _loginBloc.updateIndicator(true);
                             _textFocusNode.unfocus();
 
                             try {
@@ -193,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
                                 password: _pwController.text,
                               );
                             } on FirebaseAuthException catch (error) {
-                              loginBloc.updateIndicator(false);
+                              _loginBloc.updateIndicator(false);
                               if (error.code == 'wrong-password') {
                                 showCupertinoDialog(
                                   context: context,
@@ -222,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         StreamBuilder(
-                          stream: loginBloc.indicator,
+                          stream: _loginBloc.indicator,
                           builder: (context, snapshot) {
                             if (snapshot.data == true) {
                               return const CupertinoActivityIndicator(
@@ -242,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         StreamBuilder(
-                          stream: loginBloc.indicator,
+                          stream: _loginBloc.indicator,
                           builder: (context, snapshot) {
                             if (snapshot.data == true) {
                               return const CupertinoActivityIndicator();
@@ -306,7 +303,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             SafeArea(
-              top:false,
+              top: false,
               right: false,
               left: false,
               child: Container(
@@ -320,17 +317,14 @@ class _LoginPageState extends State<LoginPage> {
                 child: MaterialButton(
                   highlightColor: Colors.transparent,
                   onPressed: () {
-                    /*
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        // ignore: prefer_const_constructors
-                        return NewAccountPage();
-                      },
-                    ),
-                  );
-
-                   */
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          // ignore: prefer_const_constructors
+                          return NewAccountPage();
+                        },
+                      ),
+                    );
                   },
                   child: const Text(
                     '새 계정 만들기',

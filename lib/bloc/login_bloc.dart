@@ -6,8 +6,8 @@ class LoginBloc {
   final _pw = BehaviorSubject<String>();
 
   final _appBarHeight = BehaviorSubject<double>.seeded(appHeight * 0.24);
-  late double _minAppBarHeight = appHeight * 0.12;
-  late double _maxAppBarHeight = appHeight * 0.24;
+  final double _minAppBarHeight = appHeight * 0.12;
+  final double _maxAppBarHeight = appHeight * 0.24;
 
   final _idButton = BehaviorSubject<bool>();
   final _pwButton = BehaviorSubject<bool>();
@@ -20,9 +20,7 @@ class LoginBloc {
   Function(String) get updatePw => _pw.sink.add;
 
   Stream<double> get appBarHeight => _appBarHeight.stream;
-  Function(double) get changeAppBarHeight => _appBarHeight.sink.add;
-  set setMinAppBarHeight(double height) => _minAppBarHeight = height;
-  set setMaxAppBarHeight(double height) => _maxAppBarHeight = height;
+  Function(double) get updateAppBarHeight => _appBarHeight.sink.add;
   double get maxAppBarHeight => _maxAppBarHeight;
   double get minAppBarHeight => _minAppBarHeight;
 

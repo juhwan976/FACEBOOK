@@ -51,10 +51,10 @@ class _MenuPageState extends State<MenuPage>
   final Duration _scrollDuration = const Duration(milliseconds: 250);
   final Duration _showingHiddenMenuDuration = const Duration(milliseconds: 300);
 
-  final menuBloc = MenuBloc();
+  final _menuBloc = MenuBloc();
 
   void _listener() {
-    menuBloc.updateScrollOffset(widget.scrollController.offset);
+    _menuBloc.updateScrollOffset(widget.scrollController.offset);
   }
 
   @override
@@ -68,7 +68,7 @@ class _MenuPageState extends State<MenuPage>
       _listener();
     });
 
-    menuBloc.init();
+    _menuBloc.init();
   }
 
   @override
@@ -79,7 +79,7 @@ class _MenuPageState extends State<MenuPage>
       _listener();
     });
 
-    menuBloc.dispose();
+    _menuBloc.dispose();
   }
 
   @override
@@ -106,7 +106,7 @@ class _MenuPageState extends State<MenuPage>
           child: Column(
             children: <Widget>[
               CustomSliverAppBarShadow(
-                scrollOffsetStream: menuBloc.scrollOffset,
+                scrollOffsetStream: _menuBloc.scrollOffset,
               ),
               Expanded(
                 child: CustomScrollView(
@@ -274,7 +274,7 @@ class _MenuPageState extends State<MenuPage>
                     ),
                     SliverToBoxAdapter(
                       child: StreamBuilder(
-                        stream: menuBloc.isShowingShortCut,
+                        stream: _menuBloc.isShowingShortCut,
                         builder: (context, AsyncSnapshot<bool> snapshot) {
                           return AnimatedContainer(
                             height:
@@ -325,15 +325,15 @@ class _MenuPageState extends State<MenuPage>
                     ),
                     SliverToBoxAdapter(
                       child: StreamBuilder(
-                        stream: menuBloc.isShowingShortCut,
+                        stream: _menuBloc.isShowingShortCut,
                         builder: (context, AsyncSnapshot<bool> snapshot) {
                           return JustButton(
                             label: snapshot.data ?? false ? '간단히 보기' : '더 보기',
                             onPress: () async {
                               if (snapshot.data!) {
-                                menuBloc.updateIsShowingShortCut(false);
+                                _menuBloc.updateIsShowingShortCut(false);
                               } else {
-                                menuBloc.updateIsShowingShortCut(true);
+                                _menuBloc.updateIsShowingShortCut(true);
                               }
                               //_isShowingShortCut = !_isShowingShortCut;
                             },
@@ -345,7 +345,7 @@ class _MenuPageState extends State<MenuPage>
                       child: HiddenMenuButton(
                         label: '커뮤니티 리소스',
                         hiddenMenu: StreamBuilder(
-                            stream: menuBloc.isShowingCommunityResource,
+                            stream: _menuBloc.isShowingCommunityResource,
                             builder: (context, AsyncSnapshot<bool> snapshot) {
                               return SingleChildScrollView(
                                 padding: EdgeInsets.zero,
@@ -395,18 +395,18 @@ class _MenuPageState extends State<MenuPage>
                             }),
                         hiddenMenuHeight: cRHeight,
                         onShowingEnd: () async {
-                          menuBloc.updateIsShowingCommunityResource(true);
+                          _menuBloc.updateIsShowingCommunityResource(true);
 
                           await Future.delayed(_showingHiddenMenuDuration).then(
                             (_) => (widget.scrollController.animateTo(
-                              menuBloc.calCRScrollOffset(),
+                              _menuBloc.calCRScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
                             )),
                           );
                         },
                         onNShowingEnd: () {
-                          menuBloc.updateIsShowingCommunityResource(false);
+                          _menuBloc.updateIsShowingCommunityResource(false);
                         },
                       ),
                     ),
@@ -414,7 +414,7 @@ class _MenuPageState extends State<MenuPage>
                       child: HiddenMenuButton(
                         label: '도움말 및 지원',
                         hiddenMenu: StreamBuilder(
-                          stream: menuBloc.isShowingHelp,
+                          stream: _menuBloc.isShowingHelp,
                           builder: (context, AsyncSnapshot<bool> snapshot) {
                             return SingleChildScrollView(
                               padding: EdgeInsets.zero,
@@ -443,18 +443,18 @@ class _MenuPageState extends State<MenuPage>
                         ),
                         hiddenMenuHeight: helpHeight,
                         onShowingEnd: () async {
-                          menuBloc.updateIsShowingHelp(true);
+                          _menuBloc.updateIsShowingHelp(true);
 
                           await Future.delayed(_showingHiddenMenuDuration).then(
                             (_) => (widget.scrollController.animateTo(
-                              menuBloc.calHelpScrollOffset(),
+                              _menuBloc.calHelpScrollOffset(),
                               duration: _scrollDuration,
                               curve: Curves.linear,
                             )),
                           );
                         },
                         onNShowingEnd: () {
-                          menuBloc.updateIsShowingHelp(false);
+                          _menuBloc.updateIsShowingHelp(false);
                         },
                       ),
                     ),

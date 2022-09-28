@@ -6,9 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
+import '../bloc/new_account_bloc.dart';
 import '../components/login_page/input_form.dart';
+import '../models/global_model.dart';
 
 class NewAccountPage extends StatefulWidget {
   const NewAccountPage({Key? key}) : super(key: key);
@@ -26,11 +27,9 @@ class _NewAccountPageState extends State<NewAccountPage> {
   final TextEditingController _pwController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
 
-  final BehaviorSubject<bool> _idButtonSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _pwButtonSubject = BehaviorSubject<bool>();
-  final BehaviorSubject<bool> _nameButtonSubject = BehaviorSubject<bool>();
-
   final FocusNode _textFocusNode = FocusNode();
+
+  final _newAccountBloc = NewAccountBloc();
 
   @override
   dispose() {
@@ -40,23 +39,17 @@ class _NewAccountPageState extends State<NewAccountPage> {
     _pwController.dispose();
     _nameController.dispose();
 
-    _nameButtonSubject.close();
-
     _textFocusNode.dispose();
+
+    _newAccountBloc.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double appHeight =
-        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
-    final double appWidth = MediaQuery.of(context).size.width;
-
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
-        _idButtonSubject.add(false);
-        _pwButtonSubject.add(false);
-        _nameButtonSubject.add(false);
+        _newAccountBloc.setButtonFalse();
       },
       child: Scaffold(
         appBar: AppBar(
@@ -149,10 +142,9 @@ class _NewAccountPageState extends State<NewAccountPage> {
               ),
               child: Column(
                 children: <Widget>[
-                  /*
                   InputForm(
                     controller: _idController,
-                    //behaviorSubject: _idButtonSubject,
+                    buttonStream: _newAccountBloc.idButton,
                     inputType: InputType.id,
                     focusNode: _textFocusNode,
                     existNext: true,
@@ -166,7 +158,7 @@ class _NewAccountPageState extends State<NewAccountPage> {
                   ),
                   InputForm(
                     controller: _pwController,
-                    //behaviorSubject: _pwButtonSubject,
+                    buttonStream: _newAccountBloc.pwButton,
                     inputType: InputType.pw,
                     focusNode: _textFocusNode,
                     existNext: true,
@@ -175,17 +167,16 @@ class _NewAccountPageState extends State<NewAccountPage> {
                     visibleBorder: false,
                     obscureText: true,
                   ),
-
-                   */
                 ],
               ),
             ),
             SizedBox(
               height: appHeight * 0.03,
-            ),/*
+            ),
             InputForm(
               controller: _nameController,
-              behaviorSubject: _nameButtonSubject,
+              buttonStream: _newAccountBloc.nameButton,
+              inputType: InputType.name,
               focusNode: _textFocusNode,
               borderColor: _borderColor,
               fontColor: _fontColor,
@@ -193,7 +184,6 @@ class _NewAccountPageState extends State<NewAccountPage> {
               existNext: false,
               hint: '이름',
             ),
-            */
           ],
         ),
       ),

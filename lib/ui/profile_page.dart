@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:scrolls_to_top/scrolls_to_top.dart';
 
 import '../bloc/profile_bloc.dart';
+import '../components/profile_page/info_button.dart';
 import '../models/global_model.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -29,7 +30,7 @@ class _ProfilePageState extends State<ProfilePage>
   final double appBarButtonHeight = const SliverAppBar().toolbarHeight - 1;
   final double appBarButtonWidth = appWidth * 0.05;
 
-  final profileBloc = ProfileBloc();
+  final _profileBloc = ProfileBloc();
 
   @override
   bool get wantKeepAlive => true;
@@ -39,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage>
     // TODO: implement initState
     super.initState();
 
-    profileBloc.init();
+    _profileBloc.init();
   }
 
   @override
@@ -47,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage>
     // TODO: implement dispose
     super.dispose();
 
-    profileBloc.dispose();
+    _profileBloc.dispose();
   }
 
   @override
@@ -130,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage>
 
                                   if (snapshot.hasData &&
                                       snapshot.data!.exists) {
-                                    profileBloc.setUserName(
+                                    _profileBloc.updateUserName(
                                         snapshot.data!['name'].toString());
 
                                     return Text(
@@ -199,7 +200,7 @@ class _ProfilePageState extends State<ProfilePage>
                     CupertinoSliverRefreshControl(
                         refreshTriggerPullDistance: appHeight * 0.1,
                         onRefresh: () async {
-                          profileBloc.refresh();
+                          _profileBloc.refresh();
                         }),
                     SliverToBoxAdapter(
                       child: Container(
@@ -261,7 +262,7 @@ class _ProfilePageState extends State<ProfilePage>
                           bottom: appHeight * 0.015,
                         ),
                         child: StreamBuilder(
-                            stream: profileBloc.userName,
+                            stream: _profileBloc.userName,
                             builder: (context, AsyncSnapshot<String> snapshot) {
                               if (snapshot.hasData) {
                                 return Text(
@@ -406,20 +407,58 @@ class _ProfilePageState extends State<ProfilePage>
                     SliverToBoxAdapter(
                       child: Column(
                         children: [
-                          MaterialButton(
-                            minWidth: appWidth,
-                            padding: EdgeInsets.zero,
-                            elevation: 0,
-                            focusElevation: 0,
-                            hoverElevation: 0,
-                            highlightElevation: 0,
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            color: Colors.yellow,
-                            child: Row(
-                              
-                            ),
+                          InfoButton(
+                            icon: Icons.home_rounded,
+                            info: '거주지',
                             onPressed: () {},
+                          ),
+                          InfoButton(
+                            icon: Icons.business_center_rounded,
+                            info: '직장',
+                            onPressed: () {},
+                          ),
+                          InfoButton(
+                            icon: Icons.school_rounded,
+                            info: '학교',
+                            onPressed: () {},
+                          ),
+                          InfoButton(
+                            icon: Icons.location_on_rounded,
+                            info: '출신지',
+                            onPressed: () {},
+                          ),
+                          InfoButton(
+                            icon: Icons.favorite_rounded,
+                            info: '결혼/연애 상태',
+                            onPressed: () {},
+                          ),
+                          InfoButton(
+                            icon: Icons.more_horiz_rounded,
+                            info: '내 정보 보기',
+                            isLast: true,
+                            onPressed: () {},
+                          ),
+                          SizedBox(
+                            height: appHeight * 0.0475,
+                            width: appWidth,
+                            child: MaterialButton(
+                              padding: EdgeInsets.zero,
+                              color: const Color.fromRGBO(230, 242, 254, 1),
+                              elevation: 0,
+                              focusElevation: 0,
+                              hoverElevation: 0,
+                              highlightElevation: 0,
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              child: const Text(
+                                '전체 공개 정보 수정',
+                                style: TextStyle(
+                                  color: Color.fromRGBO(0, 98, 206, 1),
+                                  fontSize: 18,
+                                ),
+                              ),
+                              onPressed: () {},
+                            ),
                           ),
                         ],
                       ),
