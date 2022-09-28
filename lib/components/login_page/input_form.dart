@@ -62,7 +62,7 @@ class InputForm extends StatelessWidget {
         textInputAction:
             existNext ? TextInputAction.next : TextInputAction.done,
         controller: controller,
-        //focusNode: focusNode,
+        focusNode: focusNode,
         cursorColor: cursorColor,
         obscureText: obscureText,
         decoration: InputDecoration(

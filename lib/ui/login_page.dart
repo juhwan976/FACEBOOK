@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _idController,
                     inputType: InputType.id,
                     buttonStream: _loginBloc.idButton,
-                    focusNode: _textFocusNode,
+                    focusNode: FocusNode(),
                     height: appHeight * 0.0555,
                     visibleBorder: false,
                     existNext: true,
@@ -128,6 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                     onSubmitted: () {
                       _loginBloc.updateIdButton(false);
+                      _textFocusNode.nextFocus();
                     },
                     onChanged: () {
                       _loginBloc.toggleIdButton();
