@@ -15,3 +15,4 @@ final double screenWidth = physicalScreenSize.width / pixelRatio;
 final double appHeight = screenHeight - paddingTop;
 // 375
 final double appWidth = screenWidth;
+

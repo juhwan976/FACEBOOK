@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/alarm_data.dart';
+import '../models/global_model.dart';
 
 class WatchPageWithData extends StatefulWidget {
   const WatchPageWithData({

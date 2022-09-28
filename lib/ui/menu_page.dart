@@ -24,10 +24,12 @@ class MenuPage extends StatefulWidget {
     Key? key,
     required this.scrollController,
     required this.isOnScreen,
+    required this.pageTransition,
   }) : super(key: key);
 
   final ScrollController scrollController;
   final bool isOnScreen;
+  final Function pageTransition;
 
   @override
   State<MenuPage> createState() => _MenuPageState();
@@ -244,7 +246,9 @@ class _MenuPageState extends State<MenuPage>
                             ),
                           ],
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          widget.pageTransition(2);
+                        },
                       ),
                     ),
                     SliverToBoxAdapter(

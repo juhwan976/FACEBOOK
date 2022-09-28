@@ -9,6 +9,7 @@ import '../models/alarm_data.dart';
 import '../models/global_model.dart';
 import '../models/main_data.dart';
 import 'alarm_page.dart';
+import 'empty_page.dart';
 import 'feed_page.dart';
 import 'home_page.dart';
 import 'menu_page.dart';
@@ -272,7 +273,7 @@ class _MainPageState extends State<MainPage> {
                           }
                         }
 
-                        return const CupertinoActivityIndicator();
+                        return EmptyPage();
                       }),
                   ProfilePage(
                     scrollController: _profilePageScrollController,
@@ -287,6 +288,7 @@ class _MainPageState extends State<MainPage> {
                   MenuPage(
                     scrollController: _menuPageScrollController,
                     isOnScreen: snapshot.data! == 5,
+                    pageTransition: _pageTransition,
                   ),
                 ],
               );
